@@ -1,13 +1,23 @@
 const isDev = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
 
+// Validate required environment variables in production
+if (isProduction) {
+  const requiredVars = ['VITE_CLIENT_API_URL', 'VITE_CREW_API_URL'];
+  const missing = requiredVars.filter(varName => !import.meta.env[varName]);
+  
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+}
+
 export const API_CONFIG = {
   CLIENT_API: isDev 
     ? '/api' 
-    : import.meta.env.VITE_CLIENT_API_URL || (isProduction ? '/api' : 'https://client.voidworksgroup.co.uk/api'),
+    : import.meta.env.VITE_CLIENT_API_URL,
   CREW_API: isDev 
     ? '/crew-api' 
-    : import.meta.env.VITE_CREW_API_URL || (isProduction ? '/crew-api' : 'https://hammerhead-app-du23o.ondigitalocean.app/api'),
+    : import.meta.env.VITE_CREW_API_URL,
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };

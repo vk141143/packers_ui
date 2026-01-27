@@ -40,37 +40,32 @@ export const confirmJob = async (jobId: string): Promise<ApiResponse<any>> => {
 };
 
 export const getJobHistory = async (): Promise<ApiResponse<any[]>> => {
-  try {
-    const token = localStorage.getItem('access_token');
-    
-    if (!token || token.startsWith('mock_token')) {
-      return { success: true, data: [] };
-    }
-    
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/client/history', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (response.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_data');
-      return { success: true, data: [] };
-    }
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: Failed to fetch job history`);
-    }
-    
-    const data = await response.json();
-    return { success: true, data };
-  } catch (error) {
-    console.error('Job history fetch error:', error);
-    return { success: true, data: [] };
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    throw new Error('Authentication required');
   }
+  
+  const response = await fetch('https://client.voidworksgroup.co.uk/api/client/history', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (response.status === 401) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_data');
+    throw new Error('Session expired. Please login again.');
+  }
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: Failed to fetch job history`);
+  }
+  
+  const data = await response.json();
+  return { success: true, data };
 };
 
 export const getJobById = async (jobId: string): Promise<ApiResponse<any>> => {
@@ -78,44 +73,25 @@ export const getJobById = async (jobId: string): Promise<ApiResponse<any>> => {
 };
 
 export const getJobTrackingById = async (jobId: string): Promise<ApiResponse<any>> => {
-  try {
-    const token = localStorage.getItem('access_token');
-    
-    if (!token || token.startsWith('mock_token')) {
-      return {
-        success: true,
-        data: {
-          job_id: '3fbe04ee-864d-4915-ae4b-f5af6b776a51',
-          property_address: 'bangalore',
-          status: 'Quote Sent',
-          progress: [
-            { step: 1, title: 'Crew Assigned', completed: false },
-            { step: 2, title: 'Arrived at Property', completed: false },
-            { step: 3, title: 'Work Started', completed: false },
-            { step: 4, title: 'Work Completed', completed: false }
-          ],
-          crew_details: null
-        }
-      };
-    }
-    
-    const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/tracking/${jobId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: Failed to fetch job tracking details`);
-    }
-    
-    const data = await response.json();
-    return { success: true, data };
-  } catch (error) {
-    console.error('Job tracking details fetch error:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  const token = localStorage.getItem('access_token');
+  
+  if (!token) {
+    throw new Error('Authentication required');
   }
+  
+  const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/tracking/${jobId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: Failed to fetch job tracking details`);
+  }
+  
+  const data = await response.json();
+  return { success: true, data };
 };
 
 export const getJobTracking = async (): Promise<ApiResponse<any[]>> => {

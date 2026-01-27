@@ -61,59 +61,33 @@ export async function loginClient(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  try {
-    const response = await fetch(getApiUrl('/auth/login/client'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  const response = await fetch(getApiUrl('/auth/login/client'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Login failed' }));
-      throw new Error(error.message || 'Client login failed');
-    }
-
-    const data = await response.json();
-    
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
-    localStorage.setItem('user_data', JSON.stringify({
-      id: data.user_id || '1',
-      name: data.full_name || email,
-      email: email,
-      role: 'client',
-      company: data.organization_name || 'Client',
-      clientType: 'client'
-    }));
-    
-    return data;
-  } catch (error) {
-    // Fallback to demo mode if API is not accessible
-    console.warn('API not accessible, using demo mode:', error);
-    
-    const mockData = {
-      access_token: 'mock_token_' + Date.now(),
-      refresh_token: 'mock_refresh_' + Date.now(),
-      user_id: '1',
-      full_name: email.split('@')[0],
-      organization_name: 'Demo Client'
-    };
-    
-    localStorage.setItem('access_token', mockData.access_token);
-    localStorage.setItem('refresh_token', mockData.refresh_token);
-    localStorage.setItem('user_data', JSON.stringify({
-      id: mockData.user_id,
-      name: mockData.full_name,
-      email: email,
-      role: 'client',
-      company: mockData.organization_name,
-      clientType: 'client'
-    }));
-    
-    return mockData;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Login failed' }));
+    throw new Error(error.message || 'Client login failed');
   }
+
+  const data = await response.json();
+  
+  localStorage.setItem('access_token', data.access_token);
+  localStorage.setItem('refresh_token', data.refresh_token);
+  localStorage.setItem('user_data', JSON.stringify({
+    id: data.user_id || '1',
+    name: data.full_name || email,
+    email: email,
+    role: 'client',
+    company: data.organization_name || 'Client',
+    clientType: 'client'
+  }));
+  
+  return data;
 }
 
 export async function refreshToken() {
@@ -318,13 +292,8 @@ export async function resetPasswordAdmin(resetToken: string, newPassword: string
 export async function createClientJob(jobData: any) {
   const token = getStoredToken();
   
-  if (!token || token.startsWith('mock_token')) {
-    // Return mock success for demo mode
-    return {
-      job_id: 'mock_job_' + Date.now(),
-      status: 'created',
-      message: 'Job created successfully'
-    };
+  if (!token) {
+    throw new Error('Authentication required. Please login again.');
   }
   
   const response = await fetch(getApiUrl('/jobs'), {
@@ -469,41 +438,20 @@ export async function getClientQuotes() {
     throw new Error('No access token available');
   }
   
-  if (token.startsWith('mock_token')) {
-    return [
-      {
-        job_id: '3fbe04ee-864d-4915-ae4b-f5af6b776a51',
-        property_address: 'bangalore',
-        service_type: 'Emergency Clearance',
-        preferred_date: '09-12-2025',
-        quote_amount: 1600,
-        deposit_amount: 600,
-        quote_notes: 'jhgfhj',
-        status: 'Awaiting Approval',
-        created_at: '2026-01-27T06:40:55.931807'
-      }
-    ];
-  }
-  
-  try {
-    const response = await fetch(getApiUrl('/client/quotes'), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+  const response = await fetch(getApiUrl('/client/quotes'), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to fetch quotes' }));
-      throw new Error(error.message || 'Client quotes fetch failed');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.warn('Client quotes API not accessible, returning empty array:', error);
-    return [];
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch quotes' }));
+    throw new Error(error.message || 'Client quotes fetch failed');
   }
+
+  return await response.json();
 }
 
 export async function getClientQuoteById(quoteId: string) {
