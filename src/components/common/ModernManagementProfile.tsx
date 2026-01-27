@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/Avatar';
 import { Badge } from '../ui/badge';
-import { Card, CardContent } from '../ui/Card';
+import { Card, CardContent } from '../ui/card';
 import { Separator } from '../ui/Separator';
 import { HelpSupport } from './HelpSupport';
 import {
