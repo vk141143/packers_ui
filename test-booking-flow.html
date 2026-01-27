@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Booking Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .step { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Booking Flow Test</h1>
+    
+    <div class="step">
+        <h3>Step 1: Fill Form</h3>
+        <p>✅ Service Type: Emergency Clearance</p>
+        <p>✅ Address: 123 Test Street, London</p>
+        <p>✅ Date: 2024-01-15</p>
+        <p>✅ Time: 10:00</p>
+        <p>✅ SLA: 48h Standard</p>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Generate Price</h3>
+        <p>✅ Click "Generate Price Estimate"</p>
+        <p>✅ Animation plays</p>
+        <p>✅ Shows £2,160 total</p>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Review & Confirm</h3>
+        <p>✅ Button text changes to "Review & Confirm Booking"</p>
+        <p>✅ Click button</p>
+        <p>🔍 <strong>SHOULD SHOW:</strong> Confirmation modal with all details</p>
+    </div>
+    
+    <div class="step">
+        <h3>Expected Modal Content:</h3>
+        <ul>
+            <li>Service Details (Emergency Clearance, 48h Standard)</li>
+            <li>Property Address (123 Test Street, London)</li>
+            <li>Date & Time (15 January 2024, 10:00)</li>
+            <li>Price Breakdown (£1,800 + £360 VAT = £2,160)</li>
+            <li>Two buttons: "Back to Edit" and "Confirm Booking"</li>
+        </ul>
+    </div>
+    
+    <script>
+        console.log('Test page loaded. Check the actual booking form to verify the confirmation modal appears.');
+    </script>
+</body>
+</html>

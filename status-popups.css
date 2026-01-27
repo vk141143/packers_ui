@@ -1,0 +1,441 @@
+/* Base Popup Styles */
+.popup-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.popup-container.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+.popup-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    min-width: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+.icon-container {
+    margin-bottom: 20px;
+}
+
+.status-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    position: relative;
+}
+
+.status-title {
+    margin: 15px 0 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.status-message {
+    margin: 0;
+    color: #666;
+    font-size: 16px;
+}
+
+/* 1. Booking Submitted Animation */
+.booking-submitted .popup-content {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    animation: slideUp 0.5s ease-out;
+}
+
+.booking-submitted .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: checkmark 1s ease-in-out 0.3s;
+}
+
+.booking-submitted .status-icon::after {
+    content: "✓";
+    animation: checkmarkDraw 0.8s ease-out 0.5s both;
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(100px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes checkmark {
+    0% { transform: scale(0) rotate(180deg); }
+    50% { transform: scale(1.2) rotate(360deg); }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
+@keyframes checkmarkDraw {
+    0% { opacity: 0; transform: scale(0); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* 2. Quote Generated Animation */
+.quote-generated .popup-content {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+    animation: fadeInScale 0.6s ease-out;
+}
+
+.quote-generated .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: documentBounce 1s ease-out;
+}
+
+.quote-generated .status-icon::after {
+    content: "📄";
+    animation: writing 2s ease-in-out;
+}
+
+@keyframes fadeInScale {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes documentBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes writing {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* 3. Quote Accepted Animation */
+.quote-accepted .popup-content {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+    animation: handshakeEntry 0.8s ease-out;
+}
+
+.quote-accepted .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: handshake 1.5s ease-in-out;
+}
+
+.quote-accepted .status-icon::after {
+    content: "🤝";
+}
+
+@keyframes handshakeEntry {
+    0% { transform: rotateY(-90deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+@keyframes handshake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25%, 75% { transform: translateX(-5px) rotate(-2deg); }
+    50% { transform: translateX(5px) rotate(2deg); }
+}
+
+/* 4. Payment Success Animation */
+.payment-success .popup-content {
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: white;
+    animation: paymentSlide 0.8s ease-out;
+    position: relative;
+}
+
+.payment-success .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: cardSwipe 1s ease-out;
+}
+
+.payment-success .status-icon::after {
+    content: "💳";
+    animation: coinDrop 0.8s ease-in 0.5s;
+}
+
+.payment-success .popup-content::before {
+    content: "💰💰💰";
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: coinsFall 1.5s ease-out 0.3s;
+}
+
+@keyframes paymentSlide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes cardSwipe {
+    0% { transform: translateX(-20px); opacity: 0; }
+    50% { transform: translateX(10px); }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes coinDrop {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+    100% { transform: translateY(0) rotate(360deg); opacity: 1; }
+}
+
+@keyframes coinsFall {
+    0% { transform: translateX(-50%) translateY(-50px); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* 5. Crew Assigned Animation */
+.crew-assigned .popup-content {
+    background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+    color: white;
+    animation: teamAssemble 1.2s ease-out;
+}
+
+.crew-assigned .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: teamGather 1.5s ease-out;
+}
+
+.crew-assigned .status-icon::after {
+    content: "👥";
+}
+
+@keyframes teamAssemble {
+    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    60% { transform: scale(1.1) rotate(5deg); opacity: 0.8; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes teamGather {
+    0% { transform: scale(0.3); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* 6. Job Started Animation */
+.job-started .popup-content {
+    background: linear-gradient(135deg, #FF5722, #D84315);
+    color: white;
+    animation: workStart 1s ease-out;
+}
+
+.job-started .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: toolsWorking 1.5s ease-in-out infinite;
+}
+
+.job-started .status-icon::after {
+    content: "🔧";
+}
+
+@keyframes workStart {
+    0% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+@keyframes toolsWorking {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+/* 7. Job Completed Animation */
+.job-completed .popup-content {
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    color: white;
+    animation: celebration 1.5s ease-out;
+    position: relative;
+}
+
+.job-completed .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: trophy 1.5s ease-out;
+}
+
+.job-completed .status-icon::after {
+    content: "🏆";
+}
+
+.job-completed .popup-content::before {
+    content: "✨🎉✨";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: sparkles 2s ease-out;
+}
+
+@keyframes celebration {
+    0% { transform: scale(0.8) rotateZ(-10deg); opacity: 0; }
+    50% { transform: scale(1.1) rotateZ(5deg); opacity: 0.8; }
+    100% { transform: scale(1) rotateZ(0deg); opacity: 1; }
+}
+
+@keyframes trophy {
+    0% { transform: translateY(50px) scale(0); }
+    60% { transform: translateY(-10px) scale(1.1); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes sparkles {
+    0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+}
+
+/* 8. Final Payment Animation */
+.final-payment .popup-content {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    animation: finalSuccess 2s ease-out;
+    position: relative;
+}
+
+.final-payment .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: celebrate 2s ease-out;
+}
+
+.final-payment .status-icon::after {
+    content: "🎉";
+}
+
+.final-payment .popup-content::before {
+    content: "🎊🎊🎊🎊🎊";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    animation: confetti 3s ease-out;
+}
+
+@keyframes finalSuccess {
+    0% { transform: scale(0.5); opacity: 0; }
+    25% { transform: scale(1.1); opacity: 0.7; }
+    50% { transform: scale(0.95); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(2deg); }
+    75% { transform: scale(1.1) rotate(-2deg); }
+}
+
+@keyframes confetti {
+    0% { transform: translateY(-100px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(0); opacity: 0.7; }
+}
+
+/* 9. Booking Cancelled Animation */
+.booking-cancelled .popup-content {
+    background: linear-gradient(135deg, #F44336, #C62828);
+    color: white;
+    animation: cancelEntry 0.8s ease-out;
+}
+
+.booking-cancelled .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: cancelShake 0.8s ease-out;
+}
+
+.booking-cancelled .status-icon::after {
+    content: "❌";
+}
+
+@keyframes cancelEntry {
+    0% { transform: scale(1.2) rotate(10deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes cancelShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+
+/* 10. No Refund Warning Animation */
+.no-refund-warning .popup-content {
+    background: linear-gradient(135deg, #FF5722, #BF360C);
+    color: white;
+    animation: warningEntry 1s ease-out;
+}
+
+.no-refund-warning .status-icon {
+    background: rgba(255,255,255,0.2);
+    animation: warningPulse 1s ease-in-out 3;
+}
+
+.no-refund-warning .status-icon::after {
+    content: "⚠️";
+}
+
+@keyframes warningEntry {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes warningPulse {
+    0%, 100% { 
+        background-color: rgba(255,255,255,0.2); 
+        transform: scale(1); 
+    }
+    50% { 
+        background-color: rgba(255,255,255,0.4); 
+        transform: scale(1.05); 
+    }
+}
+
+/* Demo Controls */
+.demo-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.demo-controls button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #2196F3;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.demo-controls button:hover {
+    background: #1976D2;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .popup-content {
+        min-width: 280px;
+        padding: 20px;
+    }
+    
+    .status-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+    
+    .status-title {
+        font-size: 20px;
+    }
+}

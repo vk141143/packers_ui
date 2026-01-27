@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Capture</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        video, canvas { max-width: 100%; height: auto; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #preview { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Photo Capture</h1>
+    <video id="video" autoplay playsinline></video>
+    <br>
+    <button onclick="startCamera()">Start Camera</button>
+    <button onclick="takePhoto()">Take Photo</button>
+    <button onclick="stopCamera()">Stop Camera</button>
+    
+    <div id="preview">
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="photo" style="display:none;">
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } // Use back camera on mobile
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('Camera access denied or not available');
+            }
+        }
+
+        function takePhoto() {
+            if (!stream) return alert('Start camera first');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            photo.src = canvas.toDataURL('image/jpeg');
+            photo.style.display = 'block';
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+        }
+    </script>
+</body>
+</html>

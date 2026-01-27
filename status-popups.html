@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Status Animations</title>
+    <link rel="stylesheet" href="status-popups.css">
+</head>
+<body>
+    <!-- Status Popup Container -->
+    <div id="statusPopup" class="popup-container hidden">
+        <div class="popup-content">
+            <div class="icon-container">
+                <div class="status-icon"></div>
+            </div>
+            <h3 class="status-title"></h3>
+            <p class="status-message"></p>
+        </div>
+    </div>
+
+    <!-- Demo Buttons -->
+    <div class="demo-controls">
+        <button onclick="showStatus('booking-submitted')">Booking Submitted</button>
+        <button onclick="showStatus('quote-generated')">Quote Generated</button>
+        <button onclick="showStatus('quote-accepted')">Quote Accepted</button>
+        <button onclick="showStatus('payment-success')">Deposit Payment</button>
+        <button onclick="showStatus('crew-assigned')">Crew Assigned</button>
+        <button onclick="showStatus('job-started')">Job Started</button>
+        <button onclick="showStatus('job-completed')">Job Completed</button>
+        <button onclick="showStatus('final-payment')">Final Payment</button>
+        <button onclick="showStatus('booking-cancelled')">Cancelled</button>
+        <button onclick="showStatus('no-refund-warning')">No Refund</button>
+    </div>
+
+    <script src="status-popups.js"></script>
+</body>
+</html>

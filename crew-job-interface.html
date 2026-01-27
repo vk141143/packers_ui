@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crew Job Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="job-card" id="jobCard">
+            <!-- Phase 1: Job Details -->
+            <div class="phase active" id="phase1">
+                <div class="header">
+                    <h2>Job Details</h2>
+                    <div class="status-badge emergency">Emergency</div>
+                </div>
+                
+                <div class="job-info">
+                    <div class="price">£2,500</div>
+                    <div class="details-grid">
+                        <div class="detail">
+                            <span class="label">SLA:</span>
+                            <span class="value">24h</span>
+                        </div>
+                        <div class="detail">
+                            <span class="label">Property:</span>
+                            <span class="value">Flat</span>
+                        </div>
+                        <div class="detail">
+                            <span class="label">Size:</span>
+                            <span class="value">M</span>
+                        </div>
+                        <div class="detail">
+                            <span class="label">Access:</span>
+                            <span class="value">Keys</span>
+                        </div>
+                    </div>
+                    
+                    <div class="client-info">
+                        <h3>Westminster Council</h3>
+                        <p>David Thompson</p>
+                    </div>
+                    
+                    <div class="location">
+                        <h4>📍 Property Location</h4>
+                        <p>123 High Street, London, SW1A 1AA</p>
+                    </div>
+                    
+                    <div class="access-code">
+                        <h4>🔐 Access Code</h4>
+                        <div class="code">5678</div>
+                        <small>One-time code</small>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="nextPhase()">I Have Arrived</button>
+            </div>
+
+            <!-- Phase 2: Contact Details -->
+            <div class="phase" id="phase2">
+                <div class="header">
+                    <h2>Contact Information</h2>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <button class="contact-btn call">📞 Call</button>
+                        <button class="contact-btn message">💬 Message</button>
+                    </div>
+                    <div class="emergency-contact">
+                        <strong>Emergency: +44 20 7641 2999</strong>
+                    </div>
+                </div>
+                
+                <div class="items-list">
+                    <h3>Items to Clear</h3>
+                    <ol>
+                        <li>All personal belongings</li>
+                        <li>Furniture</li>
+                        <li>Electrical items</li>
+                        <li>Clothing</li>
+                        <li>Kitchen items</li>
+                    </ol>
+                </div>
+                
+                <div class="special-instructions">
+                    <h3>Special Instructions</h3>
+                    <p><strong>URGENT:</strong> Tenant eviction - handle with care, document everything</p>
+                </div>
+                
+                <button class="btn-primary" onclick="nextPhase()">Continue to Photos</button>
+            </div>
+
+            <!-- Phase 3: Before Photos -->
+            <div class="phase" id="phase3">
+                <div class="header">
+                    <h2>📸 Before Photos</h2>
+                    <p>Document initial state</p>
+                </div>
+                
+                <div class="photo-section">
+                    <div class="photo-count">
+                        <span id="beforePhotoCount">0</span> photos
+                    </div>
+                    
+                    <div class="photo-upload">
+                        <input type="file" id="beforePhotos" multiple accept="image/*" style="display: none;">
+                        <button class="btn-upload" onclick="document.getElementById('beforePhotos').click()">
+                            📷 Camera
+                        </button>
+                        <button class="btn-upload" onclick="document.getElementById('beforePhotos').click()">
+                            📁 Upload
+                        </button>
+                    </div>
+                    
+                    <div class="photo-preview" id="beforePhotoPreview"></div>
+                    
+                    <p class="photo-instruction">Take photos to document the initial state</p>
+                </div>
+                
+                <button class="btn-primary" id="confirmBeforeBtn" onclick="nextPhase()" disabled>Confirm & Next</button>
+            </div>
+
+            <!-- Phase 4: Paperwork Confirmation -->
+            <div class="phase" id="phase4">
+                <div class="header">
+                    <h2>📋 Paperwork Confirmation</h2>
+                </div>
+                
+                <div class="paperwork-section">
+                    <div class="checklist">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="inventoryCheck">
+                            <span class="checkmark"></span>
+                            Inventory completed
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="conditionCheck">
+                            <span class="checkmark"></span>
+                            Property condition documented
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="itemsCheck">
+                            <span class="checkmark"></span>
+                            All items catalogued
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="accessCheck">
+                            <span class="checkmark"></span>
+                            Access confirmed
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="confirmPaperworkBtn" onclick="nextPhase()" disabled>Confirm Paperwork</button>
+            </div>
+
+            <!-- Phase 5: After Photos -->
+            <div class="phase" id="phase5">
+                <div class="header">
+                    <h2>✅ After Photos</h2>
+                    <p>Document completed work</p>
+                </div>
+                
+                <div class="photo-section">
+                    <div class="photo-count">
+                        <span id="afterPhotoCount">0</span> photos
+                    </div>
+                    
+                    <div class="photo-upload">
+                        <input type="file" id="afterPhotos" multiple accept="image/*" style="display: none;">
+                        <button class="btn-upload" onclick="document.getElementById('afterPhotos').click()">
+                            📷 Camera
+                        </button>
+                        <button class="btn-upload" onclick="document.getElementById('afterPhotos').click()">
+                            📁 Upload
+                        </button>
+                    </div>
+                    
+                    <div class="photo-preview" id="afterPhotoPreview"></div>
+                    
+                    <p class="photo-instruction">Photos will be available after arrival</p>
+                </div>
+                
+                <button class="btn-primary" id="confirmAfterBtn" onclick="nextPhase()" disabled>Upload Complete</button>
+            </div>
+
+            <!-- Phase 6: Job Completion -->
+            <div class="phase" id="phase6">
+                <div class="header">
+                    <h2>🎉 Job Completed</h2>
+                </div>
+                
+                <div class="completion-summary">
+                    <div class="summary-item">
+                        <span class="label">Before Photos:</span>
+                        <span class="value" id="finalBeforeCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">After Photos:</span>
+                        <span class="value" id="finalAfterCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Status:</span>
+                        <span class="value success">Completed</span>
+                    </div>
+                </div>
+                
+                <button class="btn-success" onclick="completeJob()">Complete Job</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

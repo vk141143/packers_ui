@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Flow Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #2563eb;
+        }
+        .success {
+            background: #10b981;
+        }
+        .danger {
+            background: #ef4444;
+        }
+        .info {
+            background: #f3f4f6;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            margin: 10px 0;
+        }
+        .storage-display {
+            background: #f9fafb;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Booking Flow Test</h1>
+    <p>This page tests the booking data persistence functionality to ensure booking details are preserved during authentication.</p>
+
+    <div class="test-section">
+        <h2>1. Simulate Landing Page Booking</h2>
+        <p>This simulates a user filling out booking details on the landing page:</p>
+        <button class="button" onclick="simulateLandingPageBooking()">Fill Booking Details</button>
+        <button class="button success" onclick="simulateBookNow()">Book Now (Save Data)</button>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Check Stored Data</h2>
+        <p>View what's currently stored in session storage:</p>
+        <button class="button" onclick="displayStoredData()">Show Stored Data</button>
+        <div id="storage-display" class="storage-display"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Simulate Authentication Flow</h2>
+        <p>Test loading booking data after authentication:</p>
+        <button class="button" onclick="simulateLogin()">Simulate Login</button>
+        <button class="button" onclick="simulateSignup()">Simulate Signup</button>
+        <button class="button" onclick="simulateBookingPage()">Load Booking Page</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Clear Test Data</h2>
+        <p>Clean up test data:</p>
+        <button class="button danger" onclick="clearAllData()">Clear All Data</button>
+    </div>
+
+    <div id="results" class="test-section" style="display: none;">
+        <h2>Test Results</h2>
+        <div id="results-content"></div>
+    </div>
+
+    <script>
+        // Sample booking data
+        const sampleBookingData = {
+            serviceType: 'emergency-clearance',
+            propertyAddress: '123 Test Street, London, SW1A 1AA',
+            pickupAddress: '123 Test Street, London, SW1A 1AA',
+            scheduledDate: '2024-12-20',
+            scheduledTime: '10:00',
+            slaType: '24h',
+            notes: 'Test booking from landing page',
+            source: 'landing-page-test',
+            estimatedPrice: 450
+        };
+
+        function simulateLandingPageBooking() {
+            showResult('✅ Simulated user filling out booking form on landing page', 'success');
+        }
+
+        function simulateBookNow() {
+            // Simulate the saveBookingData function
+            const bookingData = {
+                ...sampleBookingData,
+                timestamp: new Date().toISOString()
+            };
+
+            // Store with multiple keys for compatibility
+            sessionStorage.setItem('pendingBookingData', JSON.stringify(bookingData));
+            sessionStorage.setItem('priceEstimateData', JSON.stringify(bookingData));
+
+            showResult('✅ Booking data saved to session storage', 'success');
+            displayStoredData();
+        }
+
+        function displayStoredData() {
+            const keys = ['pendingBookingData', 'priceEstimateData', 'pendingBooking'];
+            let display = 'Session Storage Contents:\n\n';
+
+            keys.forEach(key => {
+                const data = sessionStorage.getItem(key);
+                if (data) {
+                    display += `${key}:\n${JSON.stringify(JSON.parse(data), null, 2)}\n\n`;
+                } else {
+                    display += `${key}: (empty)\n\n`;
+                }
+            });
+
+            document.getElementById('storage-display').textContent = display;
+        }
+
+        function simulateLogin() {
+            // Simulate loadBookingData function
+            const keys = ['pendingBookingData', 'priceEstimateData', 'pendingBooking'];
+            let foundData = null;
+
+            for (const key of keys) {
+                const data = sessionStorage.getItem(key);
+                if (data) {
+                    foundData = JSON.parse(data);
+                    break;
+                }
+            }
+
+            if (foundData) {
+                showResult(`✅ Login: Found booking data from storage\nService: ${foundData.serviceType}\nAddress: ${foundData.propertyAddress}\nDate: ${foundData.scheduledDate}`, 'success');
+            } else {
+                showResult('❌ Login: No booking data found in storage', 'danger');
+            }
+        }
+
+        function simulateSignup() {
+            // Similar to login simulation
+            simulateLogin();
+        }
+
+        function simulateBookingPage() {
+            // Simulate transformBookingDataForForm function
+            const keys = ['pendingBookingData', 'priceEstimateData', 'pendingBooking'];
+            let foundData = null;
+
+            for (const key of keys) {
+                const data = sessionStorage.getItem(key);
+                if (data) {
+                    foundData = JSON.parse(data);
+                    break;
+                }
+            }
+
+            if (foundData) {
+                const formData = {
+                    serviceType: foundData.serviceType || 'emergency-clearance',
+                    propertyAddress: foundData.propertyAddress || foundData.pickupAddress || '',
+                    scheduledDate: foundData.scheduledDate || '',
+                    scheduledTime: foundData.scheduledTime || '',
+                    slaType: foundData.slaType || '48h',
+                    notes: foundData.notes || '',
+                    accessInstructions: foundData.accessInstructions || '',
+                };
+
+                showResult(`✅ Booking Page: Successfully loaded and transformed data\n${JSON.stringify(formData, null, 2)}`, 'success');
+                
+                // Simulate clearing data after loading
+                clearAllData();
+                showResult('✅ Booking data cleared after loading (as expected)', 'success');
+            } else {
+                showResult('❌ Booking Page: No data to load', 'danger');
+            }
+        }
+
+        function clearAllData() {
+            const keys = ['pendingBookingData', 'priceEstimateData', 'pendingBooking'];
+            keys.forEach(key => sessionStorage.removeItem(key));
+            showResult('🧹 All booking data cleared from session storage', 'info');
+            displayStoredData();
+        }
+
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('results-content');
+            
+            resultsDiv.style.display = 'block';
+            
+            const resultItem = document.createElement('div');
+            resultItem.className = 'info';
+            resultItem.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'danger' ? '#ef4444' : '#3b82f6';
+            resultItem.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>${message.replace(/\n/g, '<br>')}`;
+            
+            contentDiv.appendChild(resultItem);
+            resultItem.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize display
+        displayStoredData();
+    </script>
+</body>
+</html>

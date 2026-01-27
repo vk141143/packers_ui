@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .camera-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        video {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            background: #000;
+        }
+        canvas {
+            display: none;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .primary { background: #007bff; color: white; }
+        .primary:hover { background: #0056b3; }
+        .success { background: #28a745; color: white; }
+        .success:hover { background: #1e7e34; }
+        .danger { background: #dc3545; color: white; }
+        .danger:hover { background: #c82333; }
+        .secondary { background: #6c757d; color: white; }
+        .secondary:hover { background: #545b62; }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .photo-preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .loading { background: #fff3cd; color: #856404; }
+        .ready { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Camera Functionality Test</h1>
+        <p>This page tests camera access and photo capture functionality.</p>
+        
+        <div id="status" class="status loading">Initializing...</div>
+        
+        <div class="camera-container">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button id="startCamera" class="primary">Start Camera</button>
+            <button id="capturePhoto" class="success" disabled>Capture Photo</button>
+            <button id="stopCamera" class="danger" disabled>Stop Camera</button>
+            <button id="uploadFile" class="secondary">Upload File</button>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        
+        <div id="errorContainer"></div>
+        <div id="successContainer"></div>
+        
+        <div id="photoContainer"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const status = document.getElementById('status');
+        const startBtn = document.getElementById('startCamera');
+        const captureBtn = document.getElementById('capturePhoto');
+        const stopBtn = document.getElementById('stopCamera');
+        const uploadBtn = document.getElementById('uploadFile');
+        const fileInput = document.getElementById('fileInput');
+        const errorContainer = document.getElementById('errorContainer');
+        const successContainer = document.getElementById('successContainer');
+        const photoContainer = document.getElementById('photoContainer');
+        
+        let currentStream = null;
+        
+        function updateStatus(message, type = 'loading') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error">❌ ${message}</div>`;
+            setTimeout(() => errorContainer.innerHTML = '', 5000);
+        }
+        
+        function showSuccess(message) {
+            successContainer.innerHTML = `<div class="success-msg">✅ ${message}</div>`;
+            setTimeout(() => successContainer.innerHTML = '', 3000);
+        }
+        
+        function checkCameraSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError('Camera not supported on this device/browser');
+                updateStatus('Camera not supported', 'error');
+                return false;
+            }
+            return true;
+        }
+        
+        async function startCamera() {
+            if (!checkCameraSupport()) return;
+            
+            try {
+                updateStatus('Requesting camera access...', 'loading');
+                
+                const constraints = {
+                    video: {
+                        facingMode: 'environment', // Back camera on mobile
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                };
+                
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        updateStatus('Camera ready!', 'ready');
+                        startBtn.disabled = true;
+                        captureBtn.disabled = false;
+                        stopBtn.disabled = false;
+                        showSuccess('Camera started successfully');
+                    }).catch(err => {
+                        showError('Failed to play video: ' + err.message);
+                    });
+                };
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                let errorMessage = 'Failed to access camera: ';
+                
+                switch(error.name) {
+                    case 'NotAllowedError':
+                        errorMessage += 'Permission denied. Please allow camera access.';
+                        break;
+                    case 'NotFoundError':
+                        errorMessage += 'No camera found on this device.';
+                        break;
+                    case 'NotReadableError':
+                        errorMessage += 'Camera is being used by another application.';
+                        break;
+                    case 'OverconstrainedError':
+                        errorMessage += 'Camera constraints not supported.';
+                        break;
+                    default:
+                        errorMessage += error.message || 'Unknown error occurred.';
+                }
+                
+                showError(errorMessage);
+                updateStatus('Camera failed to start', 'error');
+            }
+        }
+        
+        function capturePhoto() {
+            if (!currentStream || video.videoWidth === 0) {
+                showError('Camera not ready. Please wait and try again.');
+                return;
+            }
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Display captured photo
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.className = 'photo-preview';
+            img.alt = 'Captured photo';
+            
+            photoContainer.innerHTML = '<h3>📷 Captured Photo:</h3>';
+            photoContainer.appendChild(img);
+            
+            // Add download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataUrl;
+            downloadLink.download = `photo-${Date.now()}.jpg`;
+            downloadLink.textContent = '💾 Download Photo';
+            downloadLink.style.display = 'block';
+            downloadLink.style.marginTop = '10px';
+            downloadLink.style.color = '#007bff';
+            photoContainer.appendChild(downloadLink);
+            
+            showSuccess('Photo captured successfully!');
+        }
+        
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                video.srcObject = null;
+                
+                startBtn.disabled = false;
+                captureBtn.disabled = true;
+                stopBtn.disabled = true;
+                
+                updateStatus('Camera stopped', 'loading');
+                showSuccess('Camera stopped');
+            }
+        }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'photo-preview';
+                    img.alt = 'Uploaded photo';
+                    
+                    photoContainer.innerHTML = '<h3>📁 Uploaded Photo:</h3>';
+                    photoContainer.appendChild(img);
+                    
+                    showSuccess('File uploaded successfully!');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startCamera);
+        captureBtn.addEventListener('click', capturePhoto);
+        stopBtn.addEventListener('click', stopCamera);
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        // Initialize
+        updateStatus('Ready to test camera', 'loading');
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopCamera);
+    </script>
+</body>
+</html>

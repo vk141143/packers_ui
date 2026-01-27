@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Card</title>
+    <style>
+        .card {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            margin: 50px auto;
+        }
+        .next-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .next-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="stepCard">
+        <h3 id="stepTitle">Step 1</h3>
+        <p id="stepContent">Welcome! Click next to continue.</p>
+        <button class="next-btn" onclick="nextStep()">Next Step</button>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const steps = [
+            { title: "Step 1", content: "Welcome! Click next to continue." },
+            { title: "Step 2", content: "Great! You're making progress." },
+            { title: "Step 3", content: "Almost there! One more step." },
+            { title: "Step 4", content: "Congratulations! You've completed all steps." }
+        ];
+
+        function nextStep() {
+            if (currentStep < steps.length) {
+                currentStep++;
+                document.getElementById('stepTitle').textContent = steps[currentStep - 1].title;
+                document.getElementById('stepContent').textContent = steps[currentStep - 1].content;
+                
+                if (currentStep === steps.length) {
+                    document.querySelector('.next-btn').textContent = 'Restart';
+                    document.querySelector('.next-btn').onclick = restart;
+                }
+            }
+        }
+
+        function restart() {
+            currentStep = 1;
+            document.getElementById('stepTitle').textContent = steps[0].title;
+            document.getElementById('stepContent').textContent = steps[0].content;
+            document.querySelector('.next-btn').textContent = 'Next Step';
+            document.querySelector('.next-btn').onclick = nextStep;
+        }
+    </script>
+</body>
+</html>
