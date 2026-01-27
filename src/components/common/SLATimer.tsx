@@ -1,35 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
-import { calculateSLARemaining, getSLAStatus } from '../../utils/helpers';
+import React from 'react';
 
 interface SLATimerProps {
-  deadline: string;
+  deadline?: string;
 }
 
 export const SLATimer: React.FC<SLATimerProps> = ({ deadline }) => {
-  const [remaining, setRemaining] = useState(() => calculateSLARemaining(deadline));
-  const [status, setStatus] = useState(() => getSLAStatus(deadline));
+  if (!deadline) {
+    return <span className="text-gray-500 text-sm">No deadline</span>;
+  }
 
-  useEffect(() => {
-    const updateTimer = () => {
-      setRemaining(calculateSLARemaining(deadline));
-      setStatus(getSLAStatus(deadline));
-    };
-
-    const interval = setInterval(updateTimer, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, [deadline]);
-
-  const statusColors = {
-    safe: 'text-green-600 bg-green-50',
-    warning: 'text-yellow-600 bg-yellow-50',
-    critical: 'text-red-600 bg-red-50',
-  };
-
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diff = deadlineDate.getTime() - now.getTime();
+  
+  if (diff <= 0) {
+    return <span className="text-red-600 text-sm font-semibold">⏰ Overdue</span>;
+  }
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
   return (
-    <div className={`flex items-center gap-1 px-2 py-1 rounded ${statusColors[status]}`}>
-      <Clock size={14} />
-      <span className="text-xs font-medium">{remaining}</span>
-    </div>
+    <span className="text-blue-600 text-sm font-semibold">
+      {hours}h {minutes}m
+    </span>
   );
 };

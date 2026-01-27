@@ -27,8 +27,6 @@ export type JobLifecycleState =
   | 'completed'         // Fully completed
   | 'invoiced';         // Invoice generated
 
-export type SLAType = '24h' | '48h' | 'standard';
-
 export type AccessMethod = 'keys' | 'locksmith' | 'agent' | 'tenant-present';
 
 export type OccupancyStatus = 'occupied' | 'void' | 'partially-occupied';
@@ -82,22 +80,6 @@ export interface Job {
   scheduledDate: string;
   status: JobStatus;
   lifecycleState: JobLifecycleState;
-  slaType: SLAType;
-  slaDeadline: string;
-  slaBreached: boolean;
-  responseTimeMinutes?: number;
-  completionTimeMinutes?: number;
-  crewAssigned?: string[];
-  crewIds?: string[];
-  assignedCrewDetails?: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    avatar: string;
-    specialty: string;
-    vehicleType: string;
-  }[];
   estimatedValue: number;
   actualCost?: number;
   
@@ -288,7 +270,7 @@ export interface InvoiceLineItem {
   id: string;
   description: string;
   amount: number;
-  category: 'base' | 'emergency-premium' | 'sla-charge' | 'risk-surcharge' | 'adjustment';
+  category: 'base' | 'emergency-premium' | 'risk-surcharge' | 'adjustment';
 }
 
 export interface ManualAdjustment {

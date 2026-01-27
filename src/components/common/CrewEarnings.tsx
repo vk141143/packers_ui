@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent } from '../ui/Card';
+import { Card, CardContent } from '../ui/card';
 import { DollarSign, TrendingUp, Calendar, Award } from 'lucide-react';
 
 export const CrewEarnings: React.FC = () => {

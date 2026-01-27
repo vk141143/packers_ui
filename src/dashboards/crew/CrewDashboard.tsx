@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DataTable } from '../../components/common/DataTable';
-import { SLATimer } from '../../components/common/SLATimer';
 import { getCrewJobs } from '../../services/crewService';
 import { formatDateTime } from '../../utils/helpers';
 import { MapPin, Clock, Package, TrendingUp, Truck, CheckCircle, X, AlertCircle, Play, Star, Award, Navigation, Phone, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getSLAStatusBadge } from '../../utils/auditHelpers';
 import { Job } from '../../types';
 
 export const CrewDashboard: React.FC = React.memo(() => {
@@ -37,19 +35,13 @@ export const CrewDashboard: React.FC = React.memo(() => {
 
   const myJobs = useMemo(() => {
     if (!jobs || jobs.length === 0) return [];
-    return jobs.filter(j => {
-      // Check if crew is assigned by name or ID
-      const isAssignedByName = j.crewAssigned?.some(assignedName => 
-        assignedName.includes('Mike Davies') || assignedName.includes('Mike')
-      );
-      const isAssignedById = j.crewIds?.includes('crew-001');
-      
-      return isAssignedByName || isAssignedById;
-    });
+    // API returns jobs directly assigned to this crew member
+    // No need to filter by crew assignment since API already filters
+    return jobs;
   }, [jobs]);
   const todayJobs = useMemo(() => myJobs.filter(j => j.status !== 'completed'), [myJobs]);
 
-  const handleRowClick = useCallback((job: Job) => navigate(`/crew/job/${job.id}`), [navigate]);
+  const handleRowClick = useCallback((job: any) => navigate(`/crew/job/${job.job_id}`), [navigate]);
 
   if (loading) {
     return (
@@ -60,22 +52,19 @@ export const CrewDashboard: React.FC = React.memo(() => {
   }
 
   const columns = [
-    { header: 'Job Reference', accessor: 'immutableReferenceId' as const },
-    { header: '🏠 Property Location', accessor: 'pickupAddress' as const },
-    { header: '🕰️ Scheduled Time', accessor: (row: Job) => formatDateTime(row.scheduledDate) },
+    { header: 'Job Reference', accessor: 'job_id' as const },
+    { header: '🏠 Property Location', accessor: 'property_address' as const },
+    { header: '🕰️ Scheduled Time', accessor: (row: any) => `${row.scheduled_date} ${row.scheduled_time}` },
     { 
       header: '📊 Job Status', 
-      accessor: (row: Job) => {
+      accessor: (row: any) => {
         const statusMap: Record<string, { text: string; emoji: string; color: string }> = {
-          'created': { text: 'New Job - Not Started', emoji: '🆕', color: 'bg-gray-100 text-gray-800' },
-          'dispatched': { text: 'Ready to Start', emoji: '🚀', color: 'bg-blue-100 text-blue-800' },
+          'crew_assigned': { text: 'Ready to Start', emoji: '🚀', color: 'bg-blue-100 text-blue-800' },
+          'payment_pending': { text: 'Payment Pending', emoji: '💳', color: 'bg-yellow-100 text-yellow-800' },
           'in-progress': { text: 'Working On-Site', emoji: '🔄', color: 'bg-orange-100 text-orange-800' },
-          'completed': { text: 'Work Done - Awaiting Admin Review', emoji: '✅', color: 'bg-green-100 text-green-800' },
-          'verified': { text: 'Verified by Admin', emoji: '✓', color: 'bg-green-100 text-green-800' },
-          'invoiced': { text: 'Job Complete & Invoiced', emoji: '🎉', color: 'bg-purple-100 text-purple-800' },
-          'admin-rejected': { text: 'Needs Rework - Check Details', emoji: '⚠️', color: 'bg-red-100 text-red-800' }
+          'completed': { text: 'Work Done', emoji: '✅', color: 'bg-green-100 text-green-800' }
         };
-        const status = statusMap[row.lifecycleState] || statusMap[row.status] || { text: row.status, emoji: '📋', color: 'bg-gray-100 text-gray-800' };
+        const status = statusMap[row.status] || { text: row.status, emoji: '📋', color: 'bg-gray-100 text-gray-800' };
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-semibold ${status.color}`}>
             {status.emoji} {status.text}
@@ -83,28 +72,6 @@ export const CrewDashboard: React.FC = React.memo(() => {
         );
       }
     },
-    { 
-      header: '⏰ Time Remaining', 
-      accessor: (row: Job) => {
-        const slaStatus = getSLAStatusBadge(row);
-        const colors = {
-          green: 'bg-green-100 text-green-800',
-          orange: 'bg-orange-100 text-orange-800',
-          red: 'bg-red-100 text-red-800',
-        };
-        const emojis = {
-          green: '✅',
-          orange: '⚠️',
-          red: '🚨'
-        };
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colors[slaStatus.color as keyof typeof colors]}`}>
-            {emojis[slaStatus.color as keyof typeof emojis]} {slaStatus.label}
-          </span>
-        );
-      }
-    },
-    { header: '🕰️ Countdown Timer', accessor: (row: Job) => <SLATimer deadline={row.slaDeadline} /> },
   ];
 
   return (
@@ -398,10 +365,6 @@ export const CrewDashboard: React.FC = React.memo(() => {
                   <div>
                     <p className="text-sm text-gray-600">Scheduled Date</p>
                     <p className="font-semibold text-gray-900">{formatDateTime(newAssignedJob.scheduledDate)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">SLA Type</p>
-                    <p className="font-semibold text-orange-600">{newAssignedJob.slaType}</p>
                   </div>
                 </div>
               </div>

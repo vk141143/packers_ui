@@ -30,7 +30,20 @@ export const ClientProfile: React.FC = () => {
     try {
       setLoading(true);
       const data = await getClientProfile();
-      setProfile(data);
+      // Map API response to component state
+      setProfile({
+        id: data.id,
+        email: data.email,
+        company_name: data.organization_name || data.company_name || '',
+        contact_person_name: data.contact_person || data.contact_person_name || '',
+        department: data.department || '',
+        phone_number: data.phone_number || '',
+        business_address: data.business_address || '',
+        client_type: data.client_type || '',
+        status: data.status || 'Active',
+        is_verified: data.is_verified || false,
+        created_at: data.created_at || ''
+      });
     } catch (error: any) {
       console.error('Failed to fetch profile:', error);
       alert('Failed to load profile: ' + error.message);
@@ -56,15 +69,17 @@ export const ClientProfile: React.FC = () => {
         business_address: profile.business_address
       });
       console.log('Received update response:', updatedData);
+      // Map API response back to component state
       setProfile({
         ...profile,
         id: updatedData.id,
         email: updatedData.email,
-        company_name: updatedData.company_name,
-        contact_person_name: updatedData.contact_person_name,
+        company_name: updatedData.organization_name || updatedData.company_name,
+        contact_person_name: updatedData.contact_person || updatedData.contact_person_name,
         department: updatedData.department,
         phone_number: updatedData.phone_number,
         business_address: updatedData.business_address,
+        client_type: updatedData.client_type,
         is_verified: updatedData.is_verified,
         created_at: updatedData.created_at
       });

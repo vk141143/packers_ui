@@ -7,7 +7,7 @@ export async function getCrewJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs', {
+  const response = await fetch('/crew-api/crew/jobs', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export async function arriveAtJob(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/arrive`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/arrive`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -11,7 +11,7 @@ export default defineConfig({
         secure: false,
       },
       '/crew-api': {
-        target: 'https://hammerhead-app-du23o.ondigitalocean.app',
+        target: 'https://voidworksgroup.co.uk',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/crew-api/, '/api'),

@@ -26,7 +26,6 @@ export const QuoteManagement: React.FC = () => {
 
   const fetchQuoteData = async () => {
     try {
-      // Check if user is authenticated
       const token = localStorage.getItem('access_token');
       if (!token) {
         console.error('No access token found');
@@ -85,8 +84,8 @@ export const QuoteManagement: React.FC = () => {
 
       // Call the actual API to send quote
       const token = localStorage.getItem('access_token');
-      const actualJobId = job.job_id || job.quote_id || jobId;
-      const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/quotes/${actualJobId}/send`, {
+      const actualJobId = job.job_id || job.id || jobId;
+      const response = await fetch(`/crew-api/admin/quotes/${actualJobId}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,6 +210,7 @@ export const QuoteManagement: React.FC = () => {
                 </div>
                 <div className="p-6 space-y-6">
                   {pendingQuotes.map((job, index) => {
+                    const isSelected = selectedJobId === job.job_id;
                     const isUpdated = false;
                     
                     return (
@@ -352,7 +352,7 @@ export const QuoteManagement: React.FC = () => {
                         </div>
                         
                         <div className="border-t pt-4">
-                          {selectedJobId === job.id ? (
+                          {isSelected ? (
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -425,7 +425,9 @@ export const QuoteManagement: React.FC = () => {
                             </div>
                           ) : (
                             <button
-                              onClick={() => setSelectedJobId(job.job_id || job.quote_id)}
+                              onClick={() => {
+                                setSelectedJobId(job.job_id);
+                              }}
                               className="w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
                             >
                               Create Quote & Set Deposit

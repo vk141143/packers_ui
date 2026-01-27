@@ -48,9 +48,10 @@ export const AssignCrewModern: React.FC = () => {
     }
 
     try {
-      await assignCrewToJob(job.id, selectedCrew[0]); // Assign first selected crew member
+      const jobId = job.job_id || job.id;
+      await assignCrewToJob(jobId, selectedCrew[0]); // Assign first selected crew member
       showStatus('crew-assigned');
-      alert(`Successfully assigned crew to job ${job.id}`);
+      alert(`Successfully assigned crew to job ${jobId}`);
       navigate('/admin');
     } catch (error) {
       console.error('Failed to assign crew:', error);
@@ -111,7 +112,7 @@ export const AssignCrewModern: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Job ID</p>
-                  <p className="font-semibold text-gray-900">{job.id}</p>
+                  <p className="font-semibold text-gray-900">{job.job_id || job.id}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl">
@@ -119,8 +120,8 @@ export const AssignCrewModern: React.FC = () => {
                   <Clock size={20} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600">SLA Type</p>
-                  <p className="font-semibold text-gray-900">{job.slaType}</p>
+                  <p className="text-xs text-gray-600">Client</p>
+                  <p className="font-semibold text-gray-900">{job.client}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl">
@@ -129,13 +130,17 @@ export const AssignCrewModern: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Service</p>
-                  <p className="font-semibold text-gray-900 text-sm">{job.serviceType}</p>
+                  <p className="font-semibold text-gray-900 text-sm">{job.service_type || job.serviceType}</p>
                 </div>
               </div>
             </div>
             <div className="mt-4 p-4 bg-gray-50 rounded-xl">
               <p className="text-sm text-gray-600 mb-1">Property Address</p>
-              <p className="font-semibold text-gray-900">{job.propertyAddress}</p>
+              <p className="font-semibold text-gray-900">{job.property_address || job.propertyAddress}</p>
+              <div className="mt-2 flex gap-4 text-sm text-gray-600">
+                <span>Preferred Date: {job.preferred_date}</span>
+                <span>Status: {job.status}</span>
+              </div>
             </div>
           </motion.div>
         )}
@@ -228,7 +233,7 @@ export const AssignCrewModern: React.FC = () => {
               {selectedCrew.map(id => {
                 const crew = availableCrew.find(c => c.id === id);
                 return crew ? (
-                  <div key={id} className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+                  <div key={`selected-${id}`} className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
                     <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-sm font-bold">
                       👷
                     </div>
@@ -266,20 +271,22 @@ export const AssignCrewModern: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {jobs.slice(0, 5).map(j => (
+                {jobs.slice(0, 5).map((j, index) => (
                   <motion.div
-                    key={j.id}
+                    key={j.job_id || `job-${index}`}
                     whileHover={{ scale: 1.02 }}
                     onClick={() => navigate('/admin/assign-crew', { state: { job: j } })}
                     className="p-4 bg-gray-50 rounded-xl hover:bg-blue-50 cursor-pointer transition-colors border border-gray-200 hover:border-blue-300"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold text-gray-900">{j.id}</p>
-                        <p className="text-sm text-gray-600">{j.propertyAddress}</p>
+                        <p className="font-semibold text-gray-900">{j.job_id}</p>
+                        <p className="text-sm text-gray-600">{j.property_address}</p>
+                        <p className="text-xs text-gray-500 mt-1">Client: {j.client}</p>
+                        <p className="text-xs text-gray-500">Date: {j.preferred_date}</p>
                       </div>
                       <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-                        Needs Crew
+                        {j.status}
                       </span>
                     </div>
                   </motion.div>
