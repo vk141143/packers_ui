@@ -1,1 +1,8 @@
-/api/* https://whale-app-7ybo5.ondigitalocean.app/api/:splat 200
+# Client API proxy
+/api/* https://client.voidworksgroup.co.uk/api/:splat 200
+
+# Crew API proxy  
+/crew-api/* https://hammerhead-app-du23o.ondigitalocean.app/api/:splat 200
+
+# SPA fallback
+/* /index.html 200

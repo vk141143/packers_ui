@@ -1,6 +1,7 @@
+import { getApiUrl } from '../config/api';
 
 export async function registerClient(payload: any): Promise<any> {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/register/client', {
+  const response = await fetch(getApiUrl('/auth/register/client'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,7 +18,7 @@ export async function registerClient(payload: any): Promise<any> {
 }
 
 export async function verifyOtp(identifier: string, otp: string): Promise<any> {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/verify-otp', {
+  const response = await fetch(getApiUrl('/auth/verify-otp'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -39,7 +40,7 @@ export async function verifyOtp(identifier: string, otp: string): Promise<any> {
 }
 
 export async function resendOtp(identifier: string, otpMethod: 'email' | 'sms' = 'email'): Promise<any> {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/resend-otp', {
+  const response = await fetch(getApiUrl('/auth/resend-otp'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ export async function loginClient(email: string, password: string) {
   }
   
   try {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/login/client', {
+    const response = await fetch(getApiUrl('/auth/login/client'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +123,7 @@ export async function refreshToken() {
     throw new Error('No refresh token available');
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/refresh', {
+  const response = await fetch(getApiUrl('/auth/refresh'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export async function refreshToken() {
 }
 
 export async function forgotPassword(identifier: string, otpMethod: 'email' | 'sms' = 'email') {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/forgot-password', {
+  const response = await fetch(getApiUrl('/auth/forgot-password'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export async function forgotPassword(identifier: string, otpMethod: 'email' | 's
 }
 
 export async function forgotPasswordCrew(email: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/forgot-password/crew', {
+  const response = await fetch(getApiUrl('/auth/forgot-password/crew', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -180,7 +181,7 @@ export async function forgotPasswordCrew(email: string) {
 }
 
 export async function forgotPasswordAdmin(email: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/forgot-password/admin', {
+  const response = await fetch(getApiUrl('/auth/forgot-password/admin', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -197,7 +198,7 @@ export async function forgotPasswordAdmin(email: string) {
 }
 
 export async function resendForgotOtp(identifier: string, otpMethod: 'email' | 'sms' = 'email') {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/resend-forgot-otp', {
+  const response = await fetch(getApiUrl('/auth/resend-forgot-otp'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -213,7 +214,7 @@ export async function resendForgotOtp(identifier: string, otpMethod: 'email' | '
   return await response.json();
 }
 export async function verifyForgotOtp(identifier: string, otp: string) {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/verify-forgot-otp', {
+  const response = await fetch(getApiUrl('/auth/verify-forgot-otp'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -230,7 +231,7 @@ export async function verifyForgotOtp(identifier: string, otp: string) {
 }
 
 export async function verifyForgotOtpCrew(email: string, otp: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/verify-forgot-otp/crew', {
+  const response = await fetch(getApiUrl('/auth/verify-forgot-otp/crew', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -247,7 +248,7 @@ export async function verifyForgotOtpCrew(email: string, otp: string) {
 }
 
 export async function verifyForgotOtpAdmin(email: string, otp: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/verify-forgot-otp/admin', {
+  const response = await fetch(getApiUrl('/auth/verify-forgot-otp/admin', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -264,7 +265,7 @@ export async function verifyForgotOtpAdmin(email: string, otp: string) {
 }
 
 export async function resetPassword(resetToken: string, newPassword: string, confirmPassword: string) {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/reset-password', {
+  const response = await fetch(getApiUrl('/auth/reset-password'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -281,7 +282,7 @@ export async function resetPassword(resetToken: string, newPassword: string, con
 }
 
 export async function resetPasswordCrew(resetToken: string, newPassword: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/reset-password/crew', {
+  const response = await fetch(getApiUrl('/auth/reset-password/crew', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -298,7 +299,7 @@ export async function resetPasswordCrew(resetToken: string, newPassword: string)
 }
 
 export async function resetPasswordAdmin(resetToken: string, newPassword: string) {
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/reset-password/admin', {
+  const response = await fetch(getApiUrl('/auth/reset-password/admin', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -326,7 +327,7 @@ export async function createClientJob(jobData: any) {
     };
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/jobs', {
+  const response = await fetch(getApiUrl('/jobs'), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -350,7 +351,7 @@ export async function createClientJob(jobData: any) {
 }
 
 export async function getWasteTypes() {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/waste-types', {
+  const response = await fetch(getApiUrl('/waste-types'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -366,7 +367,7 @@ export async function getWasteTypes() {
 }
 
 export async function getWasteTypeById(id: number) {
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/waste-types/${id}`, {
+  const response = await fetch(getApiUrl(`/waste-types/${id}`), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -382,7 +383,7 @@ export async function getWasteTypeById(id: number) {
 }
 
 export async function getAccessDifficulties() {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/access-difficulties', {
+  const response = await fetch(getApiUrl('/access-difficulties'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -398,7 +399,7 @@ export async function getAccessDifficulties() {
 }
 
 export async function getAccessDifficultyById(id: number) {
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/access-difficulties/${id}`, {
+  const response = await fetch(getApiUrl(`/access-difficulties/${id}`), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -414,7 +415,7 @@ export async function getAccessDifficultyById(id: number) {
 }
 
 export async function getServiceTypes() {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/service-types', {
+  const response = await fetch(getApiUrl('/service-types'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -430,7 +431,7 @@ export async function getServiceTypes() {
 }
 
 export async function getServiceTypeById(id: number) {
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/service-types/${id}`, {
+  const response = await fetch(getApiUrl(`/service-types/${id}`), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -446,7 +447,7 @@ export async function getServiceTypeById(id: number) {
 }
 
 export async function getUrgencyLevels() {
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/urgency-levels', {
+  const response = await fetch(getApiUrl('/urgency-levels'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -485,7 +486,7 @@ export async function getClientQuotes() {
   }
   
   try {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/client/quotes', {
+    const response = await fetch(getApiUrl('/client/quotes'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -529,7 +530,7 @@ export async function getClientQuoteById(quoteId: string) {
   }
   
   try {
-    const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/quotes/${quoteId}`, {
+    const response = await fetch(getApiUrl(`/client/quotes/${quoteId}`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -567,7 +568,7 @@ export async function getClientProfile() {
   }
   
   try {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/client/profile', {
+    const response = await fetch(getApiUrl('/auth/client/profile'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -623,7 +624,7 @@ export async function getCrewProfile() {
     };
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/crew/profile', {
+  const response = await fetch(getApiUrl('/auth/crew/profile', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -646,7 +647,7 @@ export async function getAdminProfile() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/admin/profile', {
+  const response = await fetch(getApiUrl('/auth/admin/profile', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -669,7 +670,7 @@ export async function updateClientProfile(data: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/auth/client/profile', {
+  const response = await fetch(getApiUrl('/auth/client/profile'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -705,7 +706,7 @@ export async function getCrewJobs() {
     ];
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs', {
+  const response = await fetch(getApiUrl('/crew/jobs', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -728,7 +729,7 @@ export async function crewArriveAtJob(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/arrive`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/arrive`, 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -754,7 +755,7 @@ export async function uploadCrewBeforePhoto(jobId: string, photoFile: File) {
   const formData = new FormData();
   formData.append('before_photo', photoFile);
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/upload-before-photo`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/upload-before-photo`, 'crew'), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -777,7 +778,7 @@ export async function getCrewJobChecklist(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/checklist`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/checklist`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -800,7 +801,7 @@ export async function updateCrewJobChecklist(jobId: string, checklistData: any) 
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/checklist`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/checklist`, 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -827,7 +828,7 @@ export async function uploadCrewAfterPhoto(jobId: string, photoFile: File) {
   const formData = new FormData();
   formData.append('after_photo', photoFile);
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/upload-after-photo`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/upload-after-photo`, 'crew'), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -850,7 +851,7 @@ export async function completeCrewWork(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/complete-work`, {
+  const response = await fetch(getApiUrl(`/crew/jobs/${jobId}/complete-work`, 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -880,7 +881,7 @@ export async function getCrewRatings() {
     };
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/ratings', {
+  const response = await fetch(getApiUrl('/crew/ratings', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -906,7 +907,7 @@ export async function getCrewAdminInfo() {
     };
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/admin-info', {
+  const response = await fetch(getApiUrl('/crew/admin-info', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -929,7 +930,7 @@ export async function updateCrewProfile(data: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/crew/profile', {
+  const response = await fetch(getApiUrl('/auth/crew/profile', 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -953,7 +954,7 @@ export async function updateAdminProfile(data: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/admin/profile', {
+  const response = await fetch(getApiUrl('/auth/admin/profile', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -983,7 +984,7 @@ export async function registerCrew(payload: any): Promise<any> {
   if (payload.insurance) formData.append('insurance_certificate', payload.insurance);
   if (payload.rightToWork) formData.append('right_to_work', payload.rightToWork);
 
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/register/crew', {
+  const response = await fetch(getApiUrl('/auth/register/crew', 'crew'), {
     method: 'POST',
     body: formData,
   });
@@ -1001,7 +1002,7 @@ export async function loginCrew(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/login/crew', {
+  const response = await fetch(getApiUrl('/auth/login/crew', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1080,7 +1081,7 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/login/admin', {
+  const response = await fetch(getApiUrl('/auth/login/admin', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1118,7 +1119,7 @@ export async function getPendingCrew() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/crew/pending', {
+  const response = await fetch(getApiUrl('/admin/crew/pending', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1141,7 +1142,7 @@ export async function getPendingCrewById(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/crew/pending/${crewId}`, {
+  const response = await fetch(getApiUrl(`/admin/crew/pending/${crewId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1164,7 +1165,7 @@ export async function approveCrewMember(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/crew/${crewId}/approve`, {
+  const response = await fetch(getApiUrl(`/admin/crew/${crewId}/approve`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1187,7 +1188,7 @@ export async function rejectCrewMember(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/crew/${crewId}/reject`, {
+  const response = await fetch(getApiUrl(`/admin/crew/${crewId}/reject`, 'crew'), {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -1210,7 +1211,7 @@ export async function getAdminQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/quotes', {
+  const response = await fetch(getApiUrl('/admin/quotes', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1233,7 +1234,7 @@ export async function getSentQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/quotes/sent', {
+  const response = await fetch(getApiUrl('/admin/quotes/sent', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1256,7 +1257,7 @@ export async function getAcceptedQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/quotes/accepted', {
+  const response = await fetch(getApiUrl('/admin/quotes/accepted', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1279,7 +1280,7 @@ export async function getAvailableCrew() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/crew/available', {
+  const response = await fetch(getApiUrl('/admin/crew/available', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1302,7 +1303,7 @@ export async function assignCrewToJob(jobId: string, crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/jobs/${jobId}/assign-crew/${crewId}`, {
+  const response = await fetch(getApiUrl(`/admin/jobs/${jobId}/assign-crew/${crewId}`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1325,7 +1326,7 @@ export async function getUnassignedJobById(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/jobs/unassigned/${jobId}`, {
+  const response = await fetch(getApiUrl(`/admin/jobs/unassigned/${jobId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1348,7 +1349,7 @@ export async function getUnassignedJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/jobs/unassigned', {
+  const response = await fetch(getApiUrl('/admin/jobs/unassigned', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1371,7 +1372,7 @@ export async function getAvailableCrewForJob(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/jobs/${jobId}/available-crew`, {
+  const response = await fetch(getApiUrl(`/admin/jobs/${jobId}/available-crew`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1394,7 +1395,7 @@ export async function getJobsPendingVerification() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/verification/jobs', {
+  const response = await fetch(getApiUrl('/admin/verification/jobs', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1417,7 +1418,7 @@ export async function getJobVerificationDetails(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/verification/jobs/${jobId}`, {
+  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1440,7 +1441,7 @@ export async function approveJobVerification(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/verification/jobs/${jobId}/approve`, {
+  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/approve`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1463,7 +1464,7 @@ export async function rejectJobVerification(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/verification/jobs/${jobId}/reject`, {
+  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/reject`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1486,7 +1487,7 @@ export async function sendPaymentRequest(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/admin/verification/jobs/${jobId}/send-payment-request`, {
+  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/send-payment-request`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
