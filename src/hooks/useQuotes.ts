@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAllQuotes } from '../services/api';
+import { declineQuote } from '../services/quoteApi';
 import { Quote } from '../types';
 
 export const useQuotes = () => {
@@ -30,10 +31,30 @@ export const useQuotes = () => {
     fetchQuotes();
   }, []);
 
+  const handleDeclineQuote = async (quoteId: string, reason: string) => {
+    try {
+      const response = await declineQuote(quoteId, reason);
+      
+      if (response.success) {
+        // Refresh quotes after declining
+        await fetchQuotes();
+        return { success: true, status: response.status };
+      } else {
+        return { success: false, error: response.error };
+      }
+    } catch (err) {
+      return { 
+        success: false, 
+        error: err instanceof Error ? err.message : 'Failed to decline quote' 
+      };
+    }
+  };
+
   return {
     quotes,
     loading,
     error,
-    refetch: fetchQuotes
+    refetch: fetchQuotes,
+    declineQuote: handleDeclineQuote
   };
 };

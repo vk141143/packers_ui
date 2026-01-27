@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { loginClient, logout as authLogout } from '../services/authService';
+import { logError, safeSync } from '../utils/errorHandler';
 
 interface AuthContextType {
   user: User | null;
@@ -17,9 +18,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing auth token and user data
-    const token = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user_data');
+    // Safely check for existing auth token and user data
+    const token = safeSync(() => localStorage.getItem('access_token'), null, 'AuthContext-getToken');
+    const userData = safeSync(() => localStorage.getItem('user_data'), null, 'AuthContext-getUserData');
     
     if (import.meta.env.DEV) {
       console.log('🔐 AuthContext: Checking stored auth data');
@@ -28,15 +29,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     if (token && userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
+      const parsedUser = safeSync(() => {
+        const parsed = JSON.parse(userData);
+        // Validate user object structure
+        if (parsed && typeof parsed === 'object' && parsed.id && parsed.email && parsed.role) {
+          return parsed;
+        }
+        throw new Error('Invalid user data structure');
+      }, null, 'AuthContext-parseUser');
+      
+      if (parsedUser) {
         if (import.meta.env.DEV) {
           console.log('🔐 AuthContext: Loaded user from storage:', parsedUser);
         }
         setUser(parsedUser);
-      } catch (error) {
+      } else {
+        // Invalid user data - clear auth
         if (import.meta.env.DEV) {
-          console.error('Failed to parse user data:', error);
+          console.log('🔐 AuthContext: Invalid user data - clearing auth');
         }
         authLogout();
       }
@@ -65,18 +75,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await loginClient(email, password);
       
       // Reload user data from localStorage
-      const userData = localStorage.getItem('user_data');
+      const userData = safeSync(() => localStorage.getItem('user_data'), null, 'AuthContext-loginGetUserData');
       if (userData) {
-        const parsedUser = JSON.parse(userData);
-        if (import.meta.env.DEV) {
-          console.log('🔐 AuthContext: Login successful, user:', parsedUser);
+        const parsedUser = safeSync(() => JSON.parse(userData), null, 'AuthContext-loginParseUser');
+        if (parsedUser) {
+          if (import.meta.env.DEV) {
+            console.log('🔐 AuthContext: Login successful, user:', parsedUser);
+          }
+          setUser(parsedUser);
+        } else {
+          throw new Error('Failed to parse user data after login');
         }
-        setUser(parsedUser);
+      } else {
+        throw new Error('No user data found after login');
       }
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('🔐 AuthContext: Login failed:', error);
       }
+      logError(error, 'AuthContext-login');
       throw error;
     }
   };
@@ -85,8 +102,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (import.meta.env.DEV) {
       console.log('🔐 AuthContext: Logging out');
     }
-    authLogout();
-    setUser(null);
+    try {
+      authLogout();
+      setUser(null);
+    } catch (error) {
+      logError(error, 'AuthContext-logout');
+      // Force logout even if there's an error
+      setUser(null);
+    }
   };
 
   return (

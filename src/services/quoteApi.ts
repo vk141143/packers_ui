@@ -134,7 +134,37 @@ export const acceptQuote = async (quoteId: string): Promise<{
   }
 };
 
-// Step 4: Process deposit payment
+// Step 4: Decline quote
+export const declineQuote = async (quoteId: string, reason: string): Promise<{
+  success: boolean;
+  job_id?: string;
+  status?: string;
+  error?: string;
+}> => {
+  try {
+    const response = await fetch(`/api/client/quotes/${quoteId}/decline`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decline_reason: reason }),
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      return { 
+        success: true, 
+        job_id: data.job_id,
+        status: data.status
+      };
+    } else {
+      return { success: false, error: data.error || 'Failed to decline quote' };
+    }
+  } catch (error) {
+    return { success: false, error: 'Network error' };
+  }
+};
+
+// Step 5: Process deposit payment
 export const processDeposit = async (quoteId: string, paymentDetails: any): Promise<{
   success: boolean;
   payment_id?: string;
@@ -159,7 +189,7 @@ export const processDeposit = async (quoteId: string, paymentDetails: any): Prom
   }
 };
 
-// Step 5: Create job after deposit confirmation
+// Step 6: Create job after deposit confirmation
 export const createJobFromQuote = async (quoteId: string): Promise<{
   success: boolean;
   job_id?: string;

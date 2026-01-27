@@ -7,6 +7,7 @@ import { authStore } from '../store/authStore';
 import { AddressInput } from '../components/common/AddressInput';
 import { saveBookingData } from '../utils/bookingPersistence';
 import { QuoteDemoNavigation } from '../components/common/QuoteDemoNavigation';
+import { jobsApi, CreateJobRequest } from '../services/jobsApi';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export const Landing: React.FC = () => {
     setShowResult(true);
   };
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     const authState = authStore.getState();
     if (!authState.isAuthenticated) {
       // Save booking data and go to auth
@@ -69,13 +70,35 @@ export const Landing: React.FC = () => {
       });
       setShowAuthModal(true);
     } else {
-      // Save booking data and go to booking request page
-      saveBookingData({
-        ...priceForm,
-        source: 'landing-page',
-        estimatedPrice: priceEstimate.total
-      });
-      navigate('/client/request-booking');
+      try {
+        // Create job via API
+        const jobData: CreateJobRequest = {
+          property_address: priceForm.pickupAddress,
+          date: priceForm.scheduledDate,
+          time: priceForm.scheduledTime,
+          service_id: 1, // Emergency clearance
+          urgency_level_id: '12fa3601-8f18-439a-9181-422c0a55c59a', // Default urgency level
+          property_size: priceForm.volumeLoads.toString(), // Convert to string as API expects
+          van_loads: priceForm.volumeLoads,
+          waste_types: priceForm.volumeLoads.toString(), // Map van loads to waste types as string
+          furniture_items: priceForm.furnitureItems
+        };
+        
+        const job = await jobsApi.createJob(jobData);
+        
+        // Save booking data with job ID
+        saveBookingData({
+          ...priceForm,
+          source: 'landing-page',
+          estimatedPrice: priceEstimate.total,
+          jobId: job.id
+        });
+        
+        navigate('/client/request-booking');
+      } catch (error) {
+        console.error('Failed to create job:', error);
+        alert('Failed to create booking. Please try again.');
+      }
     }
   };
 

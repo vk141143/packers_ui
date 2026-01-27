@@ -1,5 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -9,16 +9,12 @@ import {
   Package, 
   History, 
   FileText, 
-  PlusCircle, 
   Users, 
-  AlertCircle, 
   BarChart3,
-  ClipboardList,
   UserCircle,
   HelpCircle,
   TrendingUp,
   CheckCircle,
-  Headphones,
   MapPin,
   DollarSign
 } from 'lucide-react';
@@ -28,7 +24,6 @@ const ClientDashboard = lazy(() => import('./dashboards/client/ClientDashboard')
 const RequestBooking = lazy(() => import('./dashboards/client/RequestBooking').then(m => ({ default: m.RequestBooking })));
 const ClientQuoteApproval = lazy(() => import('./dashboards/client/ClientQuoteApproval').then(m => ({ default: m.ClientQuoteApproval })));
 const ClientPaymentDetails = lazy(() => import('./dashboards/client/ClientPaymentDetails').then(m => ({ default: m.ClientPaymentDetails })));
-const ClientFinalPayment = lazy(() => import('./dashboards/client/ClientFinalPayment').then(m => ({ default: m.ClientFinalPayment })));
 const ClientHistory = lazy(() => import('./dashboards/client/ClientHistory').then(m => ({ default: m.ClientHistory })));
 const ClientInvoices = lazy(() => import('./dashboards/client/ClientInvoices').then(m => ({ default: m.ClientInvoices })));
 const JobTrackingModern = lazy(() => import('./dashboards/client/JobTrackingModern').then(m => ({ default: m.JobTrackingModern })));

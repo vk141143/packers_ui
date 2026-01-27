@@ -1,35 +1,69 @@
+// Enhanced error handling utilities
 export class AppError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
-    public isOperational: boolean = true
+    public code?: string,
+    public statusCode?: number,
+    public isOperational = true
   ) {
     super(message);
-    Object.setPrototypeOf(this, AppError.prototype);
+    this.name = 'AppError';
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-export const handleApiError = (error: any): never => {
+export const handleError = (error: unknown): AppError => {
   if (error instanceof AppError) {
-    throw error;
+    return error;
   }
 
-  if (error.response) {
-    throw new AppError(
-      error.response.data?.message || 'API request failed',
-      error.response.status
-    );
+  if (error instanceof Error) {
+    return new AppError(error.message, 'UNKNOWN_ERROR');
   }
 
-  if (error.request) {
-    throw new AppError('Network error. Please check your connection.', 503);
-  }
-
-  throw new AppError(error.message || 'An unexpected error occurred', 500);
+  return new AppError('An unexpected error occurred', 'UNKNOWN_ERROR');
 };
 
-export const logError = (error: Error, context?: string) => {
-  if (import.meta.env.VITE_ENABLE_CONSOLE_LOGS === 'true') {
-    console.error(`[${context || 'Error'}]:`, error);
+export const logError = (error: unknown, context?: string) => {
+  const appError = handleError(error);
+  
+  if (import.meta.env.DEV) {
+    console.error(`[${context || 'APP'}] Error:`, {
+      message: appError.message,
+      code: appError.code,
+      statusCode: appError.statusCode,
+      stack: appError.stack
+    });
+  }
+  
+  // In production, you would send this to your monitoring service
+  if (import.meta.env.PROD) {
+    // Example: sendToMonitoringService(appError, context);
+  }
+};
+
+export const safeAsync = async <T>(
+  fn: () => Promise<T>,
+  fallback?: T,
+  context?: string
+): Promise<T | undefined> => {
+  try {
+    return await fn();
+  } catch (error) {
+    logError(error, context);
+    return fallback;
+  }
+};
+
+export const safeSync = <T>(
+  fn: () => T,
+  fallback?: T,
+  context?: string
+): T | undefined => {
+  try {
+    return fn();
+  } catch (error) {
+    logError(error, context);
+    return fallback;
   }
 };

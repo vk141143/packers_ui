@@ -1,24 +1,36 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Package, ArrowRight, Truck, Camera, Sparkles, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Confetti, type ConfettiRef } from '../components/common/Confetti';
-import { authStore } from '../store/authStore';
 import { AddressInput } from '../components/common/AddressInput';
-import { createJobDraft } from '../services/api';
+import { jobsApi, type CreateJobRequest } from '../services/jobsApi';
+
+// Service type mapping
+const SERVICE_TYPE_MAP: Record<string, number> = {
+  'house-clearance': 1,
+  'office-move': 2,
+  'emergency-clearance': 3,
+  'property-turnover': 4,
+};
 
 export const PublicBooking: React.FC = () => {
   const navigate = useNavigate();
-  const confettiRef = useRef<ConfettiRef>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const confettiRef = React.useRef<ConfettiRef>(null);
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
+  const [formData, setFormData] = React.useState({
     serviceType: '',
     propertyAddress: '',
     scheduledDate: '',
-    slaType: '48h',
+    scheduledTime: '10:00',
+    propertySize: '1',
+    vanLoads: 1,
+    wasteTypes: '1',
+    furnitureItems: 1,
+    urgencyLevel: '12fa3601-8f18-439a-9181-422c0a55c59a',
     photos: [] as File[],
   });
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = React.useState({
     serviceType: '',
     propertyAddress: '',
     scheduledDate: '',
@@ -49,33 +61,38 @@ export const PublicBooking: React.FC = () => {
     
     confettiRef.current?.fire({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
 
-    // Attempt to create a public job draft on the backend so guests can continue after signup
     try {
-      const resp = await createJobDraft({
+      const jobData: CreateJobRequest = {
         property_address: formData.propertyAddress,
         date: formData.scheduledDate,
-        time: '10:00',
-        service_type: formData.serviceType,
-        service_level: formData.slaType,
-        property_photos: formData.photos,
-      });
+        time: formData.scheduledTime,
+        service_id: SERVICE_TYPE_MAP[formData.serviceType] || 1,
+        urgency_level_id: formData.urgencyLevel,
+        property_size: formData.propertySize,
+        van_loads: formData.vanLoads,
+        waste_types: formData.wasteTypes,
+        furniture_items: formData.furnitureItems,
+      };
 
-      if (resp.success) {
-        // store draft so signup flow can link to it
-        sessionStorage.setItem('pendingBooking', JSON.stringify({ ...formData, jobDraft: resp.data }));
-      } else {
-        // still save client-side form so user can continue and show minimal feedback
-        sessionStorage.setItem('pendingBooking', JSON.stringify(formData));
-        console.warn('Failed to create job draft:', resp.error);
-      }
-    } catch (err) {
-      console.error('Error creating job draft:', err);
+      const response = await jobsApi.createJob(jobData);
+      
+      // Store the job ID for later use
+      sessionStorage.setItem('pendingBooking', JSON.stringify({ 
+        ...formData, 
+        jobId: response.id 
+      }));
+
+      setTimeout(() => {
+        navigate('/signup?booking=true');
+      }, 1000);
+    } catch (error) {
+      // Fallback: store form data without job ID
       sessionStorage.setItem('pendingBooking', JSON.stringify(formData));
+      
+      setTimeout(() => {
+        navigate('/signup?booking=true');
+      }, 1000);
     }
-
-    setTimeout(() => {
-      navigate('/signup?booking=true');
-    }, 1000);
   };
 
   return (
@@ -206,24 +223,97 @@ export const PublicBooking: React.FC = () => {
 
           <div>
             <label className="block text-sm font-semibold mb-2 flex items-center gap-2 text-white">
-              <Package size={16} /> SLA Type
+              <Package size={16} /> Property Size
+            </label>
+            <select
+              value={formData.propertySize}
+              onChange={(e) => setFormData({ ...formData, propertySize: e.target.value })}
+              className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 focus:border-blue-500 focus:outline-none text-white"
+            >
+              <option value="1" className="bg-slate-800 text-white">1 Bedroom</option>
+              <option value="2" className="bg-slate-800 text-white">2 Bedroom</option>
+              <option value="3" className="bg-slate-800 text-white">3 Bedroom</option>
+              <option value="4" className="bg-slate-800 text-white">4+ Bedroom</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2 flex items-center gap-2 text-white">
+              <Truck size={16} /> Van Loads Required
+            </label>
+            <select
+              value={formData.vanLoads}
+              onChange={(e) => setFormData({ ...formData, vanLoads: parseInt(e.target.value) })}
+              className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 focus:border-blue-500 focus:outline-none text-white"
+            >
+              <option value={1} className="bg-slate-800 text-white">1 Van Load</option>
+              <option value={2} className="bg-slate-800 text-white">2 Van Loads</option>
+              <option value={3} className="bg-slate-800 text-white">3 Van Loads</option>
+              <option value={4} className="bg-slate-800 text-white">4+ Van Loads</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2 flex items-center gap-2 text-white">
+              <Package size={16} /> Waste Types
+            </label>
+            <select
+              value={formData.wasteTypes}
+              onChange={(e) => setFormData({ ...formData, wasteTypes: e.target.value })}
+              className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 focus:border-blue-500 focus:outline-none text-white"
+            >
+              <option value="1" className="bg-slate-800 text-white">General Household</option>
+              <option value="2" className="bg-slate-800 text-white">Garden Waste</option>
+              <option value="3" className="bg-slate-800 text-white">Construction Debris</option>
+              <option value="4" className="bg-slate-800 text-white">Mixed Waste</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2 flex items-center gap-2 text-white">
+              <Package size={16} /> Furniture Items
+            </label>
+            <select
+              value={formData.furnitureItems}
+              onChange={(e) => setFormData({ ...formData, furnitureItems: parseInt(e.target.value) })}
+              className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 focus:border-blue-500 focus:outline-none text-white"
+            >
+              <option value={1} className="bg-slate-800 text-white">Few Items (1-5)</option>
+              <option value={2} className="bg-slate-800 text-white">Some Items (6-15)</option>
+              <option value={3} className="bg-slate-800 text-white">Many Items (16-30)</option>
+              <option value={4} className="bg-slate-800 text-white">Full House (30+)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2 flex items-center gap-2 text-white">
+              <Package size={16} /> Urgency Level
             </label>
             <div className="grid grid-cols-2 gap-4">
-              {['24h', '48h'].map((sla) => (
-                <button
-                  key={sla}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, slaType: sla })}
-                  className={`px-6 py-4 rounded-xl border-2 transition-all ${
-                    formData.slaType === sla
-                      ? 'border-blue-500 bg-blue-500/20 text-white'
-                      : 'border-white/20 bg-white/5 hover:border-white/40 text-white'
-                  }`}
-                >
-                  <div className="font-bold text-lg">{sla}</div>
-                  <div className="text-sm text-gray-300">{sla === '24h' ? 'Emergency' : 'Standard'}</div>
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, urgencyLevel: '12fa3601-8f18-439a-9181-422c0a55c59a' })}
+                className={`px-6 py-4 rounded-xl border-2 transition-all ${
+                  formData.urgencyLevel === '12fa3601-8f18-439a-9181-422c0a55c59a'
+                    ? 'border-blue-500 bg-blue-500/20 text-white'
+                    : 'border-white/20 bg-white/5 hover:border-white/40 text-white'
+                }`}
+              >
+                <div className="font-bold text-lg">Standard</div>
+                <div className="text-sm text-gray-300">48h Response</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, urgencyLevel: 'emergency-id' })}
+                className={`px-6 py-4 rounded-xl border-2 transition-all ${
+                  formData.urgencyLevel === 'emergency-id'
+                    ? 'border-red-500 bg-red-500/20 text-white'
+                    : 'border-white/20 bg-white/5 hover:border-white/40 text-white'
+                }`}
+              >
+                <div className="font-bold text-lg">Emergency</div>
+                <div className="text-sm text-gray-300">24h Response</div>
+              </button>
             </div>
           </div>
 

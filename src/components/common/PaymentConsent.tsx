@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Shield, Lock } from 'lucide-react';
-import { BookingStatus } from '../types/booking';
-import { useJobPermissions } from '../hooks/useJobPermissions';
+import { BookingStatus } from '../../types/booking';
+import { useJobPermissions } from '../../hooks/useJobPermissions';
 
 interface PaymentConsentProps {
   bookingId: string;

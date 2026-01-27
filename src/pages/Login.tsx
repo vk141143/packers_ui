@@ -64,7 +64,13 @@ export const Login: React.FC = () => {
       
       // Navigate to appropriate dashboard
       if (hasBooking && formData.role === 'client') {
-        navigate('/client/book');
+        // Check if there's pending booking data
+        const pendingBooking = sessionStorage.getItem('pendingBooking');
+        if (pendingBooking) {
+          navigate('/client/book');
+        } else {
+          navigate('/client');
+        }
       } else {
         navigate(`/${formData.role}`);
       }
