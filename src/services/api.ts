@@ -46,7 +46,7 @@ export const getJobHistory = async (): Promise<ApiResponse<any[]>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/client/history', {
+  const response = await fetch('/api/client/history', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ export const getJobTrackingById = async (jobId: string): Promise<ApiResponse<any
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/tracking/${jobId}`, {
+  const response = await fetch(`/api/client/tracking/${jobId}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -101,7 +101,7 @@ export const getJobTracking = async (): Promise<ApiResponse<any[]>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/client/tracking', {
+  const response = await fetch('/api/client/tracking', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ export const getClientInvoices = async (): Promise<ApiResponse<any>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('https://client.voidworksgroup.co.uk/api/client/invoices', {
+  const response = await fetch('/api/client/invoices', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ export const downloadClientInvoice = async (invoiceId: string): Promise<ApiRespo
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/invoices/${invoiceId}/download`, {
+  const response = await fetch(`/api/client/invoices/${invoiceId}/download`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -213,7 +213,7 @@ export const approveClientQuote = async (quoteId: string): Promise<ApiResponse<a
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/quotes/${quoteId}/approve`, {
+  const response = await fetch(`/api/client/quotes/${quoteId}/approve`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -236,7 +236,7 @@ export const rejectClientQuote = async (quoteId: string, reason: string): Promis
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`https://client.voidworksgroup.co.uk/api/client/quotes/${quoteId}/decline`, {
+  const response = await fetch(`/api/client/quotes/${quoteId}/decline`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -333,7 +333,7 @@ export interface Quote {
 // NEW: Get all quotes API
 export const getAllQuotes = async (): Promise<ApiResponse<Quote[]>> => {
   try {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/client/quotes', {
+    const response = await fetch('/api/client/quotes', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

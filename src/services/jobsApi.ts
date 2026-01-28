@@ -31,7 +31,7 @@ export interface ConfirmJobResponse {
 
 export const jobsApi = {
   createJob: async (jobData: CreateJobRequest): Promise<JobResponse> => {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/jobs/', {
+    const response = await fetch('/api/jobs/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export const jobsApi = {
   },
 
   getJobById: async (jobId: string): Promise<JobResponse> => {
-    const response = await fetch(`https://client.voidworksgroup.co.uk/api/jobs/${jobId}`);
+    const response = await fetch(`/api/jobs/${jobId}`);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: Failed to get job`);
@@ -57,7 +57,7 @@ export const jobsApi = {
   },
 
   getAllJobs: async (): Promise<JobResponse[]> => {
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/jobs/');
+    const response = await fetch('/api/jobs/');
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: Failed to get jobs`);
@@ -69,7 +69,7 @@ export const jobsApi = {
   confirmJob: async (jobId: string): Promise<ConfirmJobResponse> => {
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch('https://client.voidworksgroup.co.uk/api/jobs/confirm', {
+    const response = await fetch('/api/jobs/confirm', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
