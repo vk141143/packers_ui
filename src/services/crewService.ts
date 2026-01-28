@@ -56,7 +56,7 @@ export async function uploadBeforePhoto(jobId: string, photo: File) {
   const formData = new FormData();
   formData.append('photo', photo);
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/upload-before-photo`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/upload-before-photo`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -79,7 +79,7 @@ export async function getJobChecklist(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/checklist`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/checklist`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export async function updateJobChecklist(jobId: string, checklistData: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/checklist`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/checklist`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ export async function uploadAfterPhoto(jobId: string, photo: File) {
   const formData = new FormData();
   formData.append('photo', photo);
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/upload-after-photo`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/upload-after-photo`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -152,7 +152,7 @@ export async function completeWork(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(`https://hammerhead-app-du23o.ondigitalocean.app/api/crew/jobs/${jobId}/complete-work`, {
+  const response = await fetch(`/crew-api/crew/jobs/${jobId}/complete-work`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export async function getCrewRatings() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/ratings', {
+  const response = await fetch('/crew-api/crew/ratings', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ export async function getAdminInfo() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/crew/admin-info', {
+  const response = await fetch('/crew-api/crew/admin-info', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -221,7 +221,7 @@ export async function getCrewProfile() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/crew/profile', {
+  const response = await fetch('/crew-api/auth/crew/profile', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -244,7 +244,7 @@ export async function updateCrewProfile(profileData: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/auth/crew/profile', {
+  const response = await fetch('/crew-api/auth/crew/profile', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

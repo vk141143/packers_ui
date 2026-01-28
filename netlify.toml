@@ -22,7 +22,7 @@
 
 [[redirects]]
   from = "/crew-api/*"
-  to = "https://hammerhead-app-du23o.ondigitalocean.app/api/:splat"
+  to = "https://voidworksgroup.co.uk/api/:splat"
   status = 200
   force = true
   headers = {X-From = "Netlify"}

@@ -462,131 +462,57 @@ export async function getClientQuoteById(quoteId: string) {
     throw new Error('No access token available');
   }
   
-  if (token.startsWith('mock_token')) {
-    return {
-      job_id: '3fbe04ee-864d-4915-ae4b-f5af6b776a51',
-      property_address: 'bangalore',
-      service_type: 'Emergency Clearance',
-      urgency_level: 'Standard',
-      preferred_date: '09-12-2025',
-      preferred_time: '11:30',
-      quote_amount: 1600,
-      deposit_amount: 600,
-      quote_notes: 'jhgfhj',
-      status: 'quote_sent',
-      created_at: '2026-01-27T06:40:55.931807'
-    };
-  }
-  
-  try {
-    const response = await fetch(getApiUrl(`/client/quotes/${quoteId}`), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+  const response = await fetch(getApiUrl(`/client/quotes/${quoteId}`), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to fetch quote details' }));
-      throw new Error(error.message || 'Quote details fetch failed');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.warn('Quote details API not accessible:', error);
-    throw error;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch quote details' }));
+    throw new Error(error.message || 'Quote details fetch failed');
   }
+
+  return await response.json();
 }
 
 export async function getClientProfile() {
   const token = getStoredToken();
   
   if (!token) {
-    return {
-      id: '1',
-      email: 'demo@example.com',
-      full_name: 'Demo User',
-      organization_name: 'Demo Company',
-      contact_person: 'Demo User',
-      department: 'Demo',
-      phone_number: '+1234567890',
-      business_address: 'Demo Address',
-      client_type: 'Council',
-      is_verified: true,
-      created_at: new Date().toISOString()
-    };
+    throw new Error('No access token available');
   }
   
-  try {
-    const response = await fetch('/api/auth/client/profile', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+  const response = await fetch('/api/auth/client/profile', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
 
-    if (response.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user_data');
-      throw new Error('Session expired');
-    }
-
-    if (response.ok) {
-      return await response.json();
-    }
-
-    // Return fallback data for non-200 responses
-    return {
-      id: '1',
-      email: 'john.smith@acmecorp.com',
-      full_name: 'John Smith',
-      organization_name: 'ACME Corporation Ltd',
-      contact_person: 'John Smith',
-      department: 'Facilities Management',
-      phone_number: '+44 20 7946 0958',
-      business_address: '123 Business Park, London, SW1A 1AA',
-      client_type: 'Council',
-      is_verified: true,
-      created_at: new Date().toISOString()
-    };
-  } catch (error) {
-    // Return fallback data for any errors
-    return {
-      id: '1',
-      email: 'john.smith@acmecorp.com',
-      full_name: 'John Smith',
-      organization_name: 'ACME Corporation Ltd',
-      contact_person: 'John Smith',
-      department: 'Facilities Management',
-      phone_number: '+44 20 7946 0958',
-      business_address: '123 Business Park, London, SW1A 1AA',
-      client_type: 'Council',
-      is_verified: true,
-      created_at: new Date().toISOString()
-    };
+  if (response.status === 401) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_data');
+    throw new Error('Session expired');
   }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch profile' }));
+    throw new Error(error.message || 'Client profile fetch failed');
+  }
+
+  return await response.json();
 }
 
 export async function getCrewProfile() {
   const token = getStoredToken();
   
-  if (!token || token.startsWith('mock_token')) {
-    return {
-      id: 'crew-001',
-      email: 'demo@crew.com',
-      full_name: 'Demo Crew',
-      phone_number: '+1234567890',
-      address: null,
-      is_approved: true,
-      status: 'available',
-      rating: 4.5,
-      organization_name: 'Demo Organization',
-      department: 'Operations',
-      created_at: new Date().toISOString()
-    };
+  if (!token) {
+    throw new Error('No access token available');
   }
   
   const response = await fetch(getApiUrl('/auth/crew/profile', 'crew'), {
@@ -665,18 +591,8 @@ export async function updateClientProfile(data: any) {
 export async function getCrewJobs() {
   const token = getStoredToken();
   
-  if (!token || token.startsWith('mock_token')) {
-    return [
-      {
-        job_id: '1877fecb-5300-4a6d-99cf-399fe8a4a140',
-        property_address: 'btmlayout',
-        scheduled_date: '27-01-2026',
-        scheduled_time: '12:00',
-        status: 'payment_pending',
-        time_remaining: '-0h 42m',
-        countdown_timer: 'Overdue'
-      }
-    ];
+  if (!token) {
+    throw new Error('No access token available');
   }
   
   const response = await fetch(getApiUrl('/crew/jobs', 'crew'), {
@@ -843,15 +759,8 @@ export async function completeCrewWork(jobId: string) {
 export async function getCrewRatings() {
   const token = getStoredToken();
   
-  if (!token || token.startsWith('mock_token')) {
-    return {
-      crew_id: 'crew-001',
-      crew_name: 'Demo Crew',
-      total_completed_jobs: 0,
-      total_rated_jobs: 0,
-      average_rating: 0,
-      ratings: []
-    };
+  if (!token) {
+    throw new Error('No access token available');
   }
   
   const response = await fetch(getApiUrl('/crew/ratings', 'crew'), {
@@ -873,11 +782,8 @@ export async function getCrewRatings() {
 export async function getCrewAdminInfo() {
   const token = getStoredToken();
   
-  if (!token || token.startsWith('mock_token')) {
-    return {
-      organization_name: 'Demo Organization',
-      department: 'Operations'
-    };
+  if (!token) {
+    throw new Error('No access token available');
   }
   
   const response = await fetch(getApiUrl('/crew/admin-info', 'crew'), {
@@ -1010,19 +916,30 @@ export async function loginSales(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const data = { access_token: 'mock_token', refresh_token: 'mock_refresh' };
-  
-  const mockUser = {
-    id: '5',
-    name: 'Tom Richards',
-    email: email,
-    role: 'sales',
-    company: 'MoveAway Ltd'
-  };
+  const response = await fetch(getApiUrl('/auth/login/sales', 'crew'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Login failed' }));
+    throw new Error(error.message || 'Sales login failed');
+  }
+
+  const data = await response.json();
   
   localStorage.setItem('access_token', data.access_token);
   localStorage.setItem('refresh_token', data.refresh_token);
-  localStorage.setItem('user_data', JSON.stringify(mockUser));
+  localStorage.setItem('user_data', JSON.stringify({
+    id: data.user_id || '5',
+    name: data.full_name || email,
+    email: email,
+    role: 'sales',
+    company: 'MoveAway Ltd'
+  }));
   
   return data;
 }
@@ -1032,19 +949,30 @@ export async function loginManagement(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const data = { access_token: 'mock_token', refresh_token: 'mock_refresh' };
-  
-  const mockUser = {
-    id: '4',
-    name: 'Emma Wilson',
-    email: email,
-    role: 'management',
-    company: 'MoveAway Ltd'
-  };
+  const response = await fetch(getApiUrl('/auth/login/management', 'crew'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Login failed' }));
+    throw new Error(error.message || 'Management login failed');
+  }
+
+  const data = await response.json();
   
   localStorage.setItem('access_token', data.access_token);
   localStorage.setItem('refresh_token', data.refresh_token);
-  localStorage.setItem('user_data', JSON.stringify(mockUser));
+  localStorage.setItem('user_data', JSON.stringify({
+    id: data.user_id || '4',
+    name: data.full_name || email,
+    email: email,
+    role: 'management',
+    company: 'MoveAway Ltd'
+  }));
   
   return data;
 }

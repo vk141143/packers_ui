@@ -14,10 +14,10 @@ if (isProduction) {
 export const API_CONFIG = {
   CLIENT_API: isDev 
     ? '/api' 
-    : import.meta.env.VITE_CLIENT_API_URL,
+    : 'https://client.voidworksgroup.co.uk/api',
   CREW_API: isDev 
     ? '/crew-api' 
-    : import.meta.env.VITE_CREW_API_URL,
+    : 'https://voidworksgroup.co.uk/api',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };
