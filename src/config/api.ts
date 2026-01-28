@@ -18,16 +18,12 @@ export const API_CONFIG = {
   CREW_API: isDev 
     ? '/crew-api' 
     : 'https://voidworksgroup.co.uk',
-  ADMIN_API: isDev 
-    ? '/admin-api' 
-    : 'https://hammerhead-app-du23o.ondigitalocean.app',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };
 
 export const getApiUrl = (endpoint: string, apiType: 'client' | 'crew' | 'admin' = 'client'): string => {
-  const baseUrl = apiType === 'client' ? API_CONFIG.CLIENT_API : 
-                  apiType === 'admin' ? API_CONFIG.ADMIN_API : API_CONFIG.CREW_API;
+  const baseUrl = apiType === 'client' ? API_CONFIG.CLIENT_API : API_CONFIG.CREW_API;
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${baseUrl}${cleanEndpoint}`;
 };
