@@ -13,8 +13,10 @@ const upload = multer({
 });
 
 app.use(cors({
-  origin: 'https://ui-packers-y8cjd.ondigitalocean.app',
-  credentials: true
+  origin: ['https://ui-packers-y8cjd.ondigitalocean.app', 'http://localhost:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -428,6 +430,25 @@ app.get('/api/ops/pending-quotes', (req, res) => {
 app.get('/api/ops/pending-verifications', (req, res) => {
   const pendingJobs = jobs.filter(j => j.status === 'completed');
   res.json(pendingJobs);
+});
+
+// Auth Endpoints
+app.post('/api/auth/login/client', (req, res) => {
+  const { email, password } = req.body;
+  // Implement your auth logic
+  res.json({ success: true, token: 'client-token', user: { email, role: 'client' } });
+});
+
+app.post('/api/auth/login/admin', (req, res) => {
+  const { email, password } = req.body;
+  // Implement your auth logic
+  res.json({ success: true, token: 'admin-token', user: { email, role: 'admin' } });
+});
+
+app.post('/api/auth/login/crew', (req, res) => {
+  const { email, password } = req.body;
+  // Implement your auth logic
+  res.json({ success: true, token: 'crew-token', user: { email, role: 'crew' } });
 });
 
 const PORT = process.env.PORT || 3001;
