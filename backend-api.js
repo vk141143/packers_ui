@@ -2,6 +2,7 @@
 // This should be deployed to your backend server
 
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const app = express();
 
@@ -11,6 +12,10 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
+app.use(cors({
+  origin: 'https://ui-packers-y8cjd.ondigitalocean.app',
+  credentials: true
+}));
 app.use(express.json());
 
 // In-memory storage (replace with database)
