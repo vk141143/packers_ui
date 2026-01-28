@@ -7,21 +7,28 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://client.voidworksgroup.co.uk',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
-      '/crew-api': {
-        target: 'https://voidworksgroup.co.uk',
+      '/auth': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/crew-api/, '/api'),
+      },
+      '/admin': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
       },
     },
   },
   build: {
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'router-vendor': ['react-router-dom'],
