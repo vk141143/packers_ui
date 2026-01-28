@@ -4,7 +4,6 @@ import { mockJobs } from '../data/mockData';
 import { canCompleteJob, canDispatchJob, canVerifyJob } from '../utils/jobLifecycle';
 import { generateComplianceReport } from '../utils/complianceReports';
 import { generateEnhancedInvoice } from '../utils/billingCalculations';
-import { calculateSLADeadline, calculateResponseTime, calculateCompletionTime, isSLABreached } from '../utils/slaCalculations';
 import { validateStatusTransition } from '../utils/statusTransitions';
 
 class JobStore {
@@ -90,9 +89,6 @@ class JobStore {
       propertyAddress: jobData.propertyAddress || '',
       pickupAddress: jobData.pickupAddress || jobData.propertyAddress || '',
       scheduledDate: jobData.scheduledDate || new Date().toISOString(),
-      slaType: jobData.slaType || '48h',
-      slaDeadline: jobData.slaDeadline || new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-      slaBreached: false,
       status: 'client-booking-request',  // Step 1: Client booking request
       lifecycleState: 'created',
       estimatedValue: jobData.estimatedValue || 500,
@@ -349,8 +345,6 @@ class JobStore {
     job.lifecycleState = 'dispatched';
     job.dispatchedAt = dispatchTime;
     job.status = 'dispatched';
-    job.slaDeadline = calculateSLADeadline(dispatchTime, job.slaType);
-    job.responseTimeMinutes = calculateResponseTime(job.createdAt, dispatchTime);
     
     this.notify();
     return { success: true };
@@ -391,12 +385,6 @@ class JobStore {
     const completionTime = new Date().toISOString();
     job.status = 'work-completed';
     job.completedAt = completionTime;
-    
-    if (job.startedAt) {
-      job.completionTimeMinutes = calculateCompletionTime(job.startedAt, completionTime);
-    }
-    
-    job.slaBreached = isSLABreached(job.slaDeadline, completionTime);
 
     // Calculate remaining amount for final payment
     const totalAmount = job.finalQuote?.fixedPrice || job.estimatedValue || 0;

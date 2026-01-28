@@ -28,22 +28,42 @@ export const AdminDashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
+      const token = localStorage.getItem('access_token');
+      console.log('🔑 Using token:', token ? 'Token exists' : 'No token');
+      
       const [pendingCrewData, activeJobsData] = await Promise.all([
-        getPendingCrew().catch(() => []),
-        fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/dashboard/active-jobs', {
+        getPendingCrew().catch(err => {
+          console.error('❌ Failed to fetch pending crew:', err);
+          return [];
+        }),
+        fetch('https://voidworksgroup.co.uk/api/admin/dashboard/active-jobs', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-        }).then(res => res.json()).catch(() => [])
+        }).then(async res => {
+          console.log('📡 API Response status:', res.status);
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ API Error:', errorText);
+            return [];
+          }
+          const data = await res.json();
+          console.log('✅ API Response data:', data);
+          return data;
+        }).catch(err => {
+          console.error('❌ Failed to fetch active jobs:', err);
+          return [];
+        })
       ]);
       
-      console.log('API Response - Active Jobs:', activeJobsData);
-      console.log('API Response - Pending Crew:', pendingCrewData);
+      console.log('📊 Final data - Pending Crew:', pendingCrewData?.length || 0);
+      console.log('📊 Final data - Active Jobs:', activeJobsData?.length || 0);
       
       setPendingUsers(pendingCrewData || []);
       setJobs(activeJobsData || []);
     } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
+      console.error('💥 Dashboard fetch error:', error);
     } finally {
       setLoading(false);
     }

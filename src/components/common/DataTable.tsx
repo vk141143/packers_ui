@@ -26,8 +26,8 @@ const TableRow = React.memo(<T extends { id: string }>({
     onClick={() => onRowClick?.(row)}
     className={onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
   >
-    {columns.map((column, idx) => (
-      <td key={idx} className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || ''}`}>
+    {columns.map((column) => (
+      <td key={`${row.id}-${String(column.header)}`} className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || ''}`}>
         {typeof column.accessor === 'function'
           ? column.accessor(row)
           : String(row[column.accessor])}
