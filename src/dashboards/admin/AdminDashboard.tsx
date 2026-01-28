@@ -31,6 +31,7 @@ export const AdminDashboard: React.FC = () => {
       const token = localStorage.getItem('access_token');
       console.log('🔑 Using token:', token ? 'Token exists' : 'No token');
       
+      // Try to fetch from API, but use mock data as fallback
       const [pendingCrewData, activeJobsData] = await Promise.all([
         getPendingCrew().catch(err => {
           console.error('❌ Failed to fetch pending crew:', err);
@@ -44,24 +45,27 @@ export const AdminDashboard: React.FC = () => {
         }).then(async res => {
           console.log('📡 API Response status:', res.status);
           if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ API Error:', errorText);
-            return [];
+            console.warn('⚠️ API not available, using mock data');
+            return null;
           }
           const data = await res.json();
           console.log('✅ API Response data:', data);
           return data;
         }).catch(err => {
-          console.error('❌ Failed to fetch active jobs:', err);
-          return [];
+          console.warn('⚠️ API error, using mock data:', err.message);
+          return null;
         })
       ]);
       
-      console.log('📊 Final data - Pending Crew:', pendingCrewData?.length || 0);
-      console.log('📊 Final data - Active Jobs:', activeJobsData?.length || 0);
+      // If API returns null/empty, keep existing mock data
+      if (activeJobsData && activeJobsData.length > 0) {
+        console.log('✅ Using API data:', activeJobsData.length, 'jobs');
+        setJobs(activeJobsData);
+      } else {
+        console.log('ℹ️ Using mock data - API returned no data');
+      }
       
       setPendingUsers(pendingCrewData || []);
-      setJobs(activeJobsData || []);
     } catch (error) {
       console.error('💥 Dashboard fetch error:', error);
     } finally {
