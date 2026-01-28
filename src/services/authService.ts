@@ -1419,7 +1419,7 @@ export async function getUnassignedJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://voidworksgroup.co.uk/api/admin/jobs/unassigned', {
+  const response = await fetch(getApiUrl('/admin/jobs/unassigned', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
