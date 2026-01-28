@@ -1,4 +1,4 @@
-import { getApiUrl } from '../config/api';
+import { getApiUrl, FALLBACK_ENDPOINTS, tryMultipleEndpoints, API_CONFIG } from '../config/api';
 import { fetchWithTimeout, isTokenExpired } from '../utils/requestUtils';
 
 export async function registerClient(payload: any): Promise<any> {
@@ -595,13 +595,21 @@ export async function getCrewJobById(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/api/crew/jobs/${jobId}`, 'crew'), {
+  const jobEndpoints = [
+    `${API_CONFIG.CREW_API}/crew/jobs/${jobId}`,
+    `${API_CONFIG.CREW_API}/api/crew/jobs/${jobId}`,
+    `${API_CONFIG.CREW_API}/jobs/${jobId}`
+  ];
+  
+  const requestOptions = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-  });
+  };
+  
+  const response = await tryMultipleEndpoints(jobEndpoints, requestOptions);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Failed to fetch job details' }));
@@ -618,13 +626,15 @@ export async function getCrewJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/api/crew/jobs', 'crew'), {
+  const requestOptions = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-  });
+  };
+  
+  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.CREW_JOBS, requestOptions);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Failed to fetch crew jobs' }));
@@ -904,13 +914,15 @@ export async function loginCrew(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/crew', 'crew'), {
+  const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ email, password }),
-  });
+  };
+  
+  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.LOGIN_CREW, requestOptions);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Login failed' }));
@@ -1005,13 +1017,15 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/admin', 'crew'), {
+  const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ email, password }),
-  });
+  };
+  
+  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.LOGIN_ADMIN, requestOptions);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Login failed' }));

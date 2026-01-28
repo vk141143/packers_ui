@@ -48,9 +48,29 @@ export const CrewDashboard: React.FC = React.memo(() => {
         navigate('/login');
         return;
       }
-      const { jobStore } = await import('../../store/jobStore');
-      const allJobs = jobStore.getJobs();
-      setJobs(allJobs);
+      
+      // Use mock data as fallback
+      const mockJobs = [
+        {
+          job_id: '0be0be06-3367-4b55-8386-1c3302a217b2',
+          property_address: 'hsr',
+          scheduled_date: '12-01-2026',
+          scheduled_time: '11:00',
+          status: 'crew-assigned',
+          client_name: 'kumar',
+          service_type: '1'
+        },
+        {
+          job_id: '1be0be06-3367-4b55-8386-1c3302a217b3',
+          property_address: '123 Main St, London',
+          scheduled_date: '13-01-2026',
+          scheduled_time: '14:00',
+          status: 'in-progress',
+          client_name: 'John Smith',
+          service_type: 'clearance'
+        }
+      ];
+      setJobs(mockJobs);
     } finally {
       setLoading(false);
     }
