@@ -2,15 +2,9 @@ const isDev = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
 
 export const API_CONFIG = {
-  CLIENT_API: isDev 
-    ? '/api' 
-    : 'https://client.voidworksgroup.co.uk',
-  CREW_API: isDev 
-    ? '/crew-api' 
-    : 'https://voidworksgroup.co.uk',
-  ADMIN_API: isDev 
-    ? '/admin-api' 
-    : 'https://voidworksgroup.co.uk',
+  CLIENT_API: '/api',
+  CREW_API: '/auth',
+  ADMIN_API: '/admin',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };

@@ -1,12 +1,30 @@
 name: ui-packers
 region: nyc
+services:
+- name: backend
+  source_dir: .
+  github:
+    repo: your-repo/backend
+    branch: main
+  run_command: npm start
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
 static_sites:
 - name: frontend
   build_command: npm run build
   output_dir: dist
   routes:
   - path: /api
-    preserve_path_prefix: false
-  - path: /crew-api
-    preserve_path_prefix: false
+    component_name: backend
+    preserve_path_prefix: true
+  - path: /auth
+    component_name: backend
+    preserve_path_prefix: true
+  - path: /login
+    component_name: backend
+    preserve_path_prefix: true
+  - path: /admin
+    component_name: backend
+    preserve_path_prefix: true
   catchall_document: index.html
