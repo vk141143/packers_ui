@@ -982,7 +982,7 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/admin', 'crew'), {
+  const response = await fetch(getApiUrl('/auth/login/admin', 'admin'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
