@@ -1,14 +1,12 @@
-name: voidworks-app
-services:
-- name: web
-  source_dir: /
-  github:
-    repo: your-repo-name
-    branch: main
-  run_command: npm run build
-  environment_slug: node-js
-  instance_count: 1
-  instance_size_slug: basic-xxs
+name: ui-packers
+region: nyc
+static_sites:
+- name: frontend
+  build_command: npm run build
+  output_dir: dist
   routes:
-  - path: /
-    catchall_document: index.html
+  - path: /api
+    preserve_path_prefix: false
+  - path: /crew-api
+    preserve_path_prefix: false
+  catchall_document: index.html
