@@ -1,5 +1,7 @@
-import { getApiUrl, FALLBACK_ENDPOINTS, tryMultipleEndpoints, API_CONFIG } from '../config/api';
+import { getApiUrl, apiCall } from '../config/api';
 import { fetchWithTimeout, isTokenExpired } from '../utils/requestUtils';
+
+const isDev = import.meta.env.DEV;
 
 export async function registerClient(payload: any): Promise<any> {
   const response = await fetchWithTimeout(getApiUrl('/auth/register/client'), {
@@ -595,11 +597,9 @@ export async function getCrewJobById(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const jobEndpoints = [
-    `${API_CONFIG.CREW_API}/crew/jobs/${jobId}`,
-    `${API_CONFIG.CREW_API}/api/crew/jobs/${jobId}`,
-    `${API_CONFIG.CREW_API}/jobs/${jobId}`
-  ];
+  if (!jobId) {
+    throw new Error('Job ID is required');
+  }
   
   const requestOptions = {
     method: 'GET',
@@ -609,7 +609,35 @@ export async function getCrewJobById(jobId: string) {
     },
   };
   
-  const response = await tryMultipleEndpoints(jobEndpoints, requestOptions);
+  const endpoints = [
+    getApiUrl(`/crew/jobs/${jobId}`, 'crew'),
+    getApiUrl(`/api/crew/jobs/${jobId}`, 'crew'),
+    getApiUrl(`/jobs/${jobId}`, 'crew')
+  ];
+  
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await apiCall(endpoint, requestOptions);
+      if (response.ok) break;
+      if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_data');
+        throw new Error('Authentication expired');
+      }
+      if (response.status !== 404) break;
+    } catch (error) {
+      lastError = error as Error;
+      continue;
+    }
+  }
+  
+  if (!response) {
+    throw lastError || new Error('All job detail endpoints failed');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Failed to fetch job details' }));
@@ -634,7 +662,36 @@ export async function getCrewJobs() {
     },
   };
   
-  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.CREW_JOBS, requestOptions);
+  const endpoints = [
+    getApiUrl('/crew/jobs', 'crew'),
+    getApiUrl('/api/crew/jobs', 'crew'),
+    getApiUrl('/jobs', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await apiCall(endpoint, requestOptions);
+      if (response.ok) break;
+      if (response.status === 401) {
+        // Token expired, don't try other endpoints
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_data');
+        throw new Error('Authentication expired');
+      }
+      if (response.status !== 404) break;
+    } catch (error) {
+      lastError = error as Error;
+      continue;
+    }
+  }
+  
+  if (!response) {
+    throw lastError || new Error('All job endpoints failed');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Failed to fetch crew jobs' }));
@@ -922,18 +979,44 @@ export async function loginCrew(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   };
   
-  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.LOGIN_CREW, requestOptions);
+  const endpoints = [
+    getApiUrl('/auth/login/crew', 'crew'),
+    getApiUrl('/login/crew', 'crew'),
+    getApiUrl('/api/auth/login/crew', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await apiCall(endpoint, requestOptions);
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      lastError = error as Error;
+      continue;
+    }
+  }
+  
+  if (!response) {
+    throw lastError || new Error('All login endpoints failed');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Login failed' }));
-    throw new Error(error.message || 'Crew login failed');
+    throw new Error(error.message || error.detail || 'Crew login failed');
   }
 
   const data = await response.json();
   
+  if (!data.access_token) {
+    throw new Error('Invalid response: missing access token');
+  }
+  
   const crewUser = {
-    id: 'crew-001',
-    name: 'Crew Member',
+    id: data.user_id || 'crew-001',
+    name: data.full_name || 'Crew Member',
     email: email,
     role: 'crew',
     company: 'MoveAway Ltd'
@@ -1025,18 +1108,45 @@ export async function loginAdmin(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   };
   
-  const response = await tryMultipleEndpoints(FALLBACK_ENDPOINTS.LOGIN_ADMIN, requestOptions);
+  // Try different endpoint patterns for production
+  const endpoints = [
+    getApiUrl('/auth/login/admin', 'crew'),
+    getApiUrl('/login/admin', 'crew'),
+    getApiUrl('/api/auth/login/admin', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await apiCall(endpoint, requestOptions);
+      if (response.ok) break;
+      if (response.status !== 404) break; // Don't try other endpoints for non-404 errors
+    } catch (error) {
+      lastError = error as Error;
+      continue;
+    }
+  }
+  
+  if (!response) {
+    throw lastError || new Error('All login endpoints failed');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Login failed' }));
-    throw new Error(error.message || 'Admin login failed');
+    throw new Error(error.message || error.detail || 'Admin login failed');
   }
 
   const data = await response.json();
   
+  if (!data.access_token) {
+    throw new Error('Invalid response: missing access token');
+  }
+  
   const adminUser = {
-    id: '1',
-    name: 'Admin User',
+    id: data.user_id || '1',
+    name: data.full_name || 'Admin User',
     email: email,
     role: 'admin',
     company: 'MoveAway Ltd',

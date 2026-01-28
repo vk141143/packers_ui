@@ -21,7 +21,6 @@ export const CrewDashboard: React.FC = React.memo(() => {
 
   const fetchJobs = async () => {
     try {
-      // Check if user is authenticated
       const token = localStorage.getItem('access_token');
       if (!token) {
         console.log('No access token found, redirecting to login');
@@ -30,47 +29,43 @@ export const CrewDashboard: React.FC = React.memo(() => {
       }
       
       const data = await getCrewJobs();
+      
+      // Validate API response
+      if (!data) {
+        throw new Error('No data received from API');
+      }
+      
       // Transform API data to match expected format
-      const transformedJobs = (data.jobs || data || []).map((job: any) => ({
-        job_id: job.job_id || job.id,
-        property_address: job.property_address || job.pickupAddress,
-        scheduled_date: job.scheduled_date || job.scheduledDate,
-        scheduled_time: job.scheduled_time || job.scheduledTime,
-        status: job.status,
-        client_name: job.client_name || job.clientName,
-        service_type: job.service_type || job.serviceType
+      const jobsArray = Array.isArray(data) ? data : (data.jobs || data.data || []);
+      const transformedJobs = jobsArray.map((job: any) => ({
+        job_id: job.job_id || job.id || 'unknown',
+        property_address: job.property_address || job.pickupAddress || 'Address not provided',
+        scheduled_date: job.scheduled_date || job.scheduledDate || new Date().toISOString().split('T')[0],
+        scheduled_time: job.scheduled_time || job.scheduledTime || '09:00',
+        status: job.status || 'pending',
+        client_name: job.client_name || job.clientName || 'Client',
+        service_type: job.service_type || job.serviceType || 'Service'
       }));
+      
       setJobs(transformedJobs);
+      
     } catch (error) {
       console.error('Failed to fetch jobs:', error);
-      // If authentication error, redirect to login
-      if (error.message?.includes('access token') || error.message?.includes('authentication')) {
+      
+      // Handle specific error types
+      if (error.message?.includes('Authentication expired') || error.message?.includes('access token')) {
+        localStorage.clear();
         navigate('/login');
         return;
       }
       
-      // Use mock data as fallback
-      const mockJobs = [
-        {
-          job_id: '0be0be06-3367-4b55-8386-1c3302a217b2',
-          property_address: 'hsr',
-          scheduled_date: '12-01-2026',
-          scheduled_time: '11:00',
-          status: 'crew-assigned',
-          client_name: 'kumar',
-          service_type: '1'
-        },
-        {
-          job_id: '1be0be06-3367-4b55-8386-1c3302a217b3',
-          property_address: '123 Main St, London',
-          scheduled_date: '13-01-2026',
-          scheduled_time: '14:00',
-          status: 'in-progress',
-          client_name: 'John Smith',
-          service_type: 'clearance'
-        }
-      ];
-      setJobs(mockJobs);
+      // Show user-friendly error message
+      const errorMessage = error.message || 'Failed to load jobs';
+      console.error('Job fetch error:', errorMessage);
+      
+      // Set empty array to show "no jobs" state instead of crash
+      setJobs([]);
+      
     } finally {
       setLoading(false);
     }

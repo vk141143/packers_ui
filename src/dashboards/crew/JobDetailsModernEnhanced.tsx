@@ -41,49 +41,51 @@ export const JobDetailsModernEnhanced: React.FC = () => {
       const fetchJobDetails = async () => {
         try {
           const jobData = await getCrewJobById(jobId);
+          
+          // Validate API response
+          if (!jobData || !jobData.job_id) {
+            throw new Error('Invalid job data received');
+          }
+          
           // Transform API data to match Job interface
           const transformedJob: Job = {
             id: jobData.job_id,
             immutableReferenceId: jobData.job_id,
-            clientName: jobData.client_name,
-            serviceType: jobData.service_type,
-            scheduledDate: `${jobData.scheduled_date} ${jobData.scheduled_time}`,
-            pickupAddress: jobData.property_address,
-            status: 'crew-assigned',
-            propertyType: 'property',
-            jobSize: 'M',
-            priority: 'normal',
-            clientPhone: '+44 20 7946 0958',
-            specialInstructions: '',
-            checklist: []
+            clientName: jobData.client_name || 'Client',
+            serviceType: jobData.service_type || 'Service',
+            scheduledDate: jobData.scheduled_date && jobData.scheduled_time 
+              ? `${jobData.scheduled_date} ${jobData.scheduled_time}` 
+              : new Date().toISOString(),
+            pickupAddress: jobData.property_address || 'Address not provided',
+            status: jobData.status || 'crew-assigned',
+            propertyType: jobData.property_type || 'property',
+            jobSize: jobData.job_size || 'M',
+            priority: jobData.priority || 'normal',
+            clientPhone: jobData.client_phone || '+44 20 7946 0958',
+            specialInstructions: jobData.special_instructions || '',
+            checklist: jobData.checklist || []
           };
+          
           setJob(transformedJob);
           setCurrentStep('details');
+          
         } catch (error) {
           console.error('Failed to fetch job details:', error);
-          // Use mock data as fallback
-          const mockJob: Job = {
-            id: jobId,
-            immutableReferenceId: jobId,
-            clientName: 'kumar',
-            serviceType: 'emergency clearance',
-            scheduledDate: '2026-01-12 11:00',
-            pickupAddress: 'hsr',
-            status: 'crew-assigned',
-            propertyType: 'flat',
-            jobSize: 'M',
-            priority: 'high',
-            clientPhone: '+44 20 7946 0958',
-            specialInstructions: 'Handle with care',
-            checklist: []
-          };
-          setJob(mockJob);
-          setCurrentStep('details');
+          
+          // Handle authentication errors
+          if (error.message?.includes('Authentication expired')) {
+            localStorage.clear();
+            navigate('/login');
+            return;
+          }
+          
+          // Set job to null to show "Job Not Found" message
+          setJob(null);
         }
       };
       fetchJobDetails();
     }
-  }, [jobId]);
+  }, [jobId, navigate]);
 
   const handleMarkArrived = () => {
     if (!job) return;
