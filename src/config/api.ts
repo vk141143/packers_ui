@@ -13,7 +13,7 @@ if (isProduction && false) {
 
 export const API_CONFIG = {
   CLIENT_API: 'https://client.voidworksgroup.co.uk',
-  CREW_API: 'https://voidworksgroup.co.uk',
+  CREW_API: 'https://hammerhead-app-du23o.ondigitalocean.app',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };
