@@ -12,12 +12,8 @@ if (isProduction && false) {
 }
 
 export const API_CONFIG = {
-  CLIENT_API: isDev 
-    ? '/api' 
-    : 'https://client.voidworksgroup.co.uk',
-  CREW_API: isDev 
-    ? '/crew-api' 
-    : 'https://voidworksgroup.co.uk',
+  CLIENT_API: 'https://client.voidworksgroup.co.uk',
+  CREW_API: 'https://voidworksgroup.co.uk',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };

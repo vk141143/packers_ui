@@ -1,4 +1,5 @@
 import { getStoredToken } from './authService';
+import { getApiUrl } from '../config/api';
 
 export async function getCrewJobs() {
   const token = getStoredToken();
@@ -7,7 +8,7 @@ export async function getCrewJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('/crew-api/crew/jobs', {
+  const response = await fetch(getApiUrl('/api/crew/jobs', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

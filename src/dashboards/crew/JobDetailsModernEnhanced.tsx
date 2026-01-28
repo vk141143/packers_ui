@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { jobStore } from '../../store/jobStore';
+import { getCrewJobById } from '../../services/authService';
 import { Job } from '../../types';
 import { MapPin, CheckCircle, Package, ArrowLeft, User, Clock, Star, AlertTriangle, Navigation, Phone, MessageCircle, Play, XCircle, Camera, Upload, Trash2, Check } from 'lucide-react';
 import { FlexiblePhotoUpload } from '../../components/common/FlexiblePhotoUpload';
@@ -38,33 +38,33 @@ export const JobDetailsModernEnhanced: React.FC = () => {
 
   useEffect(() => {
     if (jobId) {
-      const updateJob = () => {
-        const foundJob = jobStore.getJobById(jobId);
-        setJob(foundJob);
-        
-        // Determine current step based on job status
-        if (foundJob) {
-          switch (foundJob.status) {
-            case 'crew-assigned':
-            case 'crew-dispatched':
-              setCurrentStep('details');
-              break;
-            case 'crew-arrived':
-              setCurrentStep('arrived');
-              break;
-            case 'in-progress':
-              setCurrentStep('in-progress');
-              break;
-            case 'work-completed':
-              setCurrentStep('completed');
-              break;
-            default:
-              setCurrentStep('details');
-          }
+      const fetchJobDetails = async () => {
+        try {
+          const jobData = await getCrewJobById(jobId);
+          // Transform API data to match Job interface
+          const transformedJob: Job = {
+            id: jobData.job_id,
+            immutableReferenceId: jobData.job_id,
+            clientName: jobData.client_name,
+            serviceType: jobData.service_type,
+            scheduledDate: `${jobData.scheduled_date} ${jobData.scheduled_time}`,
+            pickupAddress: jobData.property_address,
+            status: 'crew-assigned',
+            propertyType: 'property',
+            jobSize: 'M',
+            priority: 'normal',
+            clientPhone: '+44 20 7946 0958',
+            specialInstructions: '',
+            checklist: []
+          };
+          setJob(transformedJob);
+          setCurrentStep('details');
+        } catch (error) {
+          console.error('Failed to fetch job details:', error);
+          setJob(null);
         }
       };
-      updateJob();
-      return jobStore.subscribe(updateJob);
+      fetchJobDetails();
     }
   }, [jobId]);
 
@@ -73,7 +73,8 @@ export const JobDetailsModernEnhanced: React.FC = () => {
     setIsLoading(true);
     const timestamp = new Date().toISOString();
     setArrivalTime(timestamp);
-    jobStore.updateJobStatus(job.id, 'crew-arrived');
+    // Update local state instead of job store
+    setJob(prev => prev ? { ...prev, status: 'crew-arrived' } : null);
     setTimeout(() => {
       setCurrentStep('arrived');
       setIsLoading(false);
@@ -100,11 +101,8 @@ export const JobDetailsModernEnhanced: React.FC = () => {
     if (!job || beforePhotos.length === 0) return;
     setIsLoading(true);
     
-    // Save before photos to job store
-    jobStore.updateJobPhotos(job.id, beforePhotos, []);
-    
-    // Start the job
-    jobStore.startJob(job.id);
+    // Update local state
+    setJob(prev => prev ? { ...prev, status: 'in-progress' } : null);
     showStatus('job-started');
     
     setTimeout(() => {
@@ -125,21 +123,8 @@ export const JobDetailsModernEnhanced: React.FC = () => {
     if (!job || afterPhotos.length === 0) return;
     setIsLoading(true);
     
-    // Save after photos to job store
-    jobStore.updateJobPhotos(job.id, [], afterPhotos);
-    
-    // Update checklist in job store
-    const updatedChecklist = job.checklist?.map((item, index) => ({
-      ...item,
-      completed: checklist[index]?.checked || false,
-      completedAt: checklist[index]?.checked ? new Date().toISOString() : undefined,
-      completedBy: checklist[index]?.checked ? 'Crew Member' : undefined
-    })) || [];
-    
-    jobStore.updateChecklist(job.id, updatedChecklist);
-    
-    // Complete the job
-    jobStore.completeJob(job.id);
+    // Update local state
+    setJob(prev => prev ? { ...prev, status: 'work-completed' } : null);
     
     setTimeout(() => {
       setCurrentStep('completed');

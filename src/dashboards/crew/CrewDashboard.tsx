@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DataTable } from '../../components/common/DataTable';
-import { getCrewJobs } from '../../services/crewService';
+import { getCrewJobs } from '../../services/authService';
 import { formatDateTime } from '../../utils/helpers';
 import { MapPin, Clock, Package, TrendingUp, Truck, CheckCircle, X, AlertCircle, Play, Star, Award, Navigation, Phone, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,10 +21,33 @@ export const CrewDashboard: React.FC = React.memo(() => {
 
   const fetchJobs = async () => {
     try {
+      // Check if user is authenticated
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.log('No access token found, redirecting to login');
+        navigate('/login');
+        return;
+      }
+      
       const data = await getCrewJobs();
-      setJobs(data.jobs || data || []);
+      // Transform API data to match expected format
+      const transformedJobs = (data.jobs || data || []).map((job: any) => ({
+        job_id: job.job_id || job.id,
+        property_address: job.property_address || job.pickupAddress,
+        scheduled_date: job.scheduled_date || job.scheduledDate,
+        scheduled_time: job.scheduled_time || job.scheduledTime,
+        status: job.status,
+        client_name: job.client_name || job.clientName,
+        service_type: job.service_type || job.serviceType
+      }));
+      setJobs(transformedJobs);
     } catch (error) {
       console.error('Failed to fetch jobs:', error);
+      // If authentication error, redirect to login
+      if (error.message?.includes('access token') || error.message?.includes('authentication')) {
+        navigate('/login');
+        return;
+      }
       const { jobStore } = await import('../../store/jobStore');
       const allJobs = jobStore.getJobs();
       setJobs(allJobs);

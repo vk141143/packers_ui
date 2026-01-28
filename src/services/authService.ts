@@ -588,6 +588,29 @@ export async function updateClientProfile(data: any) {
   return result;
 }
 
+export async function getCrewJobById(jobId: string) {
+  const token = getStoredToken();
+  
+  if (!token) {
+    throw new Error('No access token available');
+  }
+  
+  const response = await fetch(getApiUrl(`/api/crew/jobs/${jobId}`, 'crew'), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to fetch job details' }));
+    throw new Error(error.detail || error.message || 'Job details fetch failed');
+  }
+
+  return await response.json();
+}
+
 export async function getCrewJobs() {
   const token = getStoredToken();
   
@@ -595,7 +618,7 @@ export async function getCrewJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/crew/jobs', 'crew'), {
+  const response = await fetch(getApiUrl('/api/crew/jobs', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -982,7 +1005,7 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/admin', 'admin'), {
+  const response = await fetch(getApiUrl('/auth/login/admin', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
