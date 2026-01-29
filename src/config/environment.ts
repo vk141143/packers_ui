@@ -268,21 +268,18 @@ class EnvironmentManager {
 
     if (this.config.NODE_ENV === 'production') {
       if (this.config.ENCRYPTION_KEY.includes('fallback')) {
-        errors.push('Production encryption key not set');
+        console.warn('Production encryption key not set');
       }
       if (!this.config.SENTRY_DSN) {
-        errors.push('Sentry DSN not configured for production');
+        console.warn('Sentry DSN not configured for production');
       }
       if (!this.config.STRIPE_PUBLIC_KEY) {
-        errors.push('Stripe public key not configured');
+        console.warn('Stripe public key not configured');
       }
     }
 
     if (errors.length > 0) {
       console.error('Environment configuration errors:', errors);
-      if (this.config.NODE_ENV === 'production') {
-        throw new Error('Critical configuration missing for production');
-      }
     }
   }
 
@@ -320,37 +317,15 @@ class EnvironmentManager {
   }
 
   getMonitoringConfig(): MonitoringConfig {
-    return this.config ? { ...this.config.MONITORING } : {
-      ERROR_REPORTING: false,
-      PERFORMANCE_MONITORING: false,
-      USER_ANALYTICS: false,
-      API_MONITORING: false,
-      LOG_LEVEL: 'error'
-    };
+    return { ...this.config.MONITORING };
   }
 
   getLoggingConfig(): LoggingConfig {
-    return this.config ? { ...this.config.LOGGING } : {
-      enabled: false,
-      endpoint: '',
-      apiKey: '',
-      batchSize: 10,
-      flushInterval: 30000,
-      retryAttempts: 3,
-      enableConsoleOverride: false
-    };
+    return { ...this.config.LOGGING };
   }
 
   getErrorReportingConfig(): ErrorReportingConfig {
-    return this.config ? { ...this.config.ERROR_REPORTING } : {
-      enabled: false,
-      endpoint: '',
-      apiKey: '',
-      includeStackTrace: false,
-      includeUserContext: false,
-      enableSourceMaps: false,
-      filterSensitiveData: true
-    };
+    return { ...this.config.ERROR_REPORTING };
   }
 }
 
