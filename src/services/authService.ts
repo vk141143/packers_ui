@@ -64,7 +64,7 @@ export async function loginClient(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/client'), {
+  const response = await fetch(getApiUrl('/api/auth/login/client'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -441,7 +441,7 @@ export async function getClientQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/client/quotes'), {
+  const response = await fetch(getApiUrl('/api/client/quotes'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

@@ -82,8 +82,21 @@ export const UniversalCameraModal: React.FC<CameraModalProps> = ({
         video.playsInline = true;
         
         // CRITICAL: Must await play() for Edge compatibility
-        await video.play();
-        setCameraReady(true);
+        try {
+          await video.play();
+          // Wait for video to have dimensions
+          const checkReady = () => {
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+              setCameraReady(true);
+            } else {
+              setTimeout(checkReady, 100);
+            }
+          };
+          checkReady();
+        } catch (playError) {
+          console.error('Video play error:', playError);
+          setCameraReady(true); // Fallback - assume ready
+        }
       }
       
       // PART 4: Timeout safety

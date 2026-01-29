@@ -118,22 +118,22 @@ class EnvironmentManager {
   private getClientApiUrlForEnv(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_API_URL_PROD || 'https://client.voidworksgroup.co.uk';
+        return import.meta.env?.VITE_API_URL_PROD || 'https://client.voidworksgroup.co.uk';
       case 'staging':
-        return import.meta.env.VITE_API_URL_STAGING || 'https://staging-api.packersandmovers.com';
+        return import.meta.env?.VITE_API_URL_STAGING || 'https://staging-api.packersandmovers.com';
       default:
-        return import.meta.env.VITE_API_URL_DEV || 'http://localhost:3001';
+        return import.meta.env?.VITE_API_URL_DEV || 'http://localhost:3001';
     }
   }
 
   private getCrewApiUrlForEnv(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_CREW_API_URL_PROD || 'https://voidworksgroup.co.uk';
+        return import.meta.env?.VITE_CREW_API_URL_PROD || 'https://voidworksgroup.co.uk';
       case 'staging':
-        return import.meta.env.VITE_CREW_API_URL_STAGING || 'https://staging-crew.packersandmovers.com';
+        return import.meta.env?.VITE_CREW_API_URL_STAGING || 'https://staging-crew.packersandmovers.com';
       default:
-        return import.meta.env.VITE_CREW_API_URL_DEV || 'http://localhost:3001';
+        return import.meta.env?.VITE_CREW_API_URL_DEV || 'http://localhost:3001';
     }
   }
 
@@ -168,11 +168,11 @@ class EnvironmentManager {
     const isProd = env === 'production';
     
     return {
-      TOKEN_EXPIRY_MS: parseInt(import.meta.env.VITE_TOKEN_EXPIRY_MS) || (isProd ? 3600000 : 7200000),
-      REFRESH_THRESHOLD_MS: parseInt(import.meta.env.VITE_REFRESH_THRESHOLD_MS) || 300000,
-      MAX_LOGIN_ATTEMPTS: parseInt(import.meta.env.VITE_MAX_LOGIN_ATTEMPTS) || (isProd ? 3 : 5),
-      LOCKOUT_DURATION_MS: parseInt(import.meta.env.VITE_LOCKOUT_DURATION_MS) || 900000,
-      SESSION_TIMEOUT_MS: parseInt(import.meta.env.VITE_SESSION_TIMEOUT_MS) || 1800000,
+      TOKEN_EXPIRY_MS: parseInt(import.meta.env?.VITE_TOKEN_EXPIRY_MS || '') || (isProd ? 3600000 : 7200000),
+      REFRESH_THRESHOLD_MS: parseInt(import.meta.env?.VITE_REFRESH_THRESHOLD_MS || '') || 300000,
+      MAX_LOGIN_ATTEMPTS: parseInt(import.meta.env?.VITE_MAX_LOGIN_ATTEMPTS || '') || (isProd ? 3 : 5),
+      LOCKOUT_DURATION_MS: parseInt(import.meta.env?.VITE_LOCKOUT_DURATION_MS || '') || 900000,
+      SESSION_TIMEOUT_MS: parseInt(import.meta.env?.VITE_SESSION_TIMEOUT_MS || '') || 1800000,
       CSRF_ENABLED: this.getBooleanEnv('VITE_CSRF_ENABLED', isProd),
       HTTPS_ONLY: this.getBooleanEnv('VITE_HTTPS_ONLY', isProd),
       SECURE_COOKIES: this.getBooleanEnv('VITE_SECURE_COOKIES', isProd)
@@ -183,10 +183,10 @@ class EnvironmentManager {
     const isProd = env === 'production';
     
     return {
-      API_REQUESTS_PER_MINUTE: parseInt(import.meta.env.VITE_API_REQUESTS_PER_MINUTE) || (isProd ? 60 : 120),
-      LOGIN_ATTEMPTS_PER_HOUR: parseInt(import.meta.env.VITE_LOGIN_ATTEMPTS_PER_HOUR) || (isProd ? 5 : 10),
-      BOOKING_REQUESTS_PER_DAY: parseInt(import.meta.env.VITE_BOOKING_REQUESTS_PER_DAY) || (isProd ? 10 : 50),
-      FILE_UPLOADS_PER_HOUR: parseInt(import.meta.env.VITE_FILE_UPLOADS_PER_HOUR) || (isProd ? 20 : 100)
+      API_REQUESTS_PER_MINUTE: parseInt(import.meta.env?.VITE_API_REQUESTS_PER_MINUTE || '') || (isProd ? 60 : 120),
+      LOGIN_ATTEMPTS_PER_HOUR: parseInt(import.meta.env?.VITE_LOGIN_ATTEMPTS_PER_HOUR || '') || (isProd ? 5 : 10),
+      BOOKING_REQUESTS_PER_DAY: parseInt(import.meta.env?.VITE_BOOKING_REQUESTS_PER_DAY || '') || (isProd ? 10 : 50),
+      FILE_UPLOADS_PER_HOUR: parseInt(import.meta.env?.VITE_FILE_UPLOADS_PER_HOUR || '') || (isProd ? 20 : 100)
     };
   }
 
@@ -208,10 +208,10 @@ class EnvironmentManager {
     return {
       enabled: this.getBooleanEnv('VITE_LOGGING_ENABLED', isProd),
       endpoint: this.getLoggingEndpoint(env),
-      apiKey: import.meta.env.VITE_LOGGING_API_KEY || '',
-      batchSize: parseInt(import.meta.env.VITE_LOGGING_BATCH_SIZE) || 10,
-      flushInterval: parseInt(import.meta.env.VITE_LOGGING_FLUSH_INTERVAL) || 30000,
-      retryAttempts: parseInt(import.meta.env.VITE_LOGGING_RETRY_ATTEMPTS) || 3,
+      apiKey: import.meta.env?.VITE_LOGGING_API_KEY || '',
+      batchSize: parseInt(import.meta.env?.VITE_LOGGING_BATCH_SIZE || '') || 10,
+      flushInterval: parseInt(import.meta.env?.VITE_LOGGING_FLUSH_INTERVAL || '') || 30000,
+      retryAttempts: parseInt(import.meta.env?.VITE_LOGGING_RETRY_ATTEMPTS || '') || 3,
       enableConsoleOverride: this.getBooleanEnv('VITE_LOGGING_CONSOLE_OVERRIDE', !isProd)
     };
   }
@@ -222,7 +222,7 @@ class EnvironmentManager {
     return {
       enabled: this.getBooleanEnv('VITE_ERROR_REPORTING_ENABLED', isProd),
       endpoint: this.getErrorReportingEndpoint(env),
-      apiKey: import.meta.env.VITE_ERROR_REPORTING_API_KEY || '',
+      apiKey: import.meta.env?.VITE_ERROR_REPORTING_API_KEY || '',
       includeStackTrace: this.getBooleanEnv('VITE_ERROR_INCLUDE_STACK_TRACE', true),
       includeUserContext: this.getBooleanEnv('VITE_ERROR_INCLUDE_USER_CONTEXT', isProd),
       enableSourceMaps: this.getBooleanEnv('VITE_ERROR_ENABLE_SOURCE_MAPS', isProd),
@@ -233,22 +233,22 @@ class EnvironmentManager {
   private getLoggingEndpoint(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_LOGGING_ENDPOINT_PROD || 'https://logs.packersandmovers.com/api/logs';
+        return import.meta.env?.VITE_LOGGING_ENDPOINT_PROD || 'https://logs.packersandmovers.com/api/logs';
       case 'staging':
-        return import.meta.env.VITE_LOGGING_ENDPOINT_STAGING || 'https://staging-logs.packersandmovers.com/api/logs';
+        return import.meta.env?.VITE_LOGGING_ENDPOINT_STAGING || 'https://staging-logs.packersandmovers.com/api/logs';
       default:
-        return import.meta.env.VITE_LOGGING_ENDPOINT_DEV || 'http://localhost:3003/api/logs';
+        return import.meta.env?.VITE_LOGGING_ENDPOINT_DEV || 'http://localhost:3003/api/logs';
     }
   }
 
   private getErrorReportingEndpoint(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_ERROR_ENDPOINT_PROD || 'https://errors.packersandmovers.com/api/errors';
+        return import.meta.env?.VITE_ERROR_ENDPOINT_PROD || 'https://errors.packersandmovers.com/api/errors';
       case 'staging':
-        return import.meta.env.VITE_ERROR_ENDPOINT_STAGING || 'https://staging-errors.packersandmovers.com/api/errors';
+        return import.meta.env?.VITE_ERROR_ENDPOINT_STAGING || 'https://staging-errors.packersandmovers.com/api/errors';
       default:
-        return import.meta.env.VITE_ERROR_ENDPOINT_DEV || 'http://localhost:3004/api/errors';
+        return import.meta.env?.VITE_ERROR_ENDPOINT_DEV || 'http://localhost:3004/api/errors';
     }
   }
 

@@ -1,3 +1,5 @@
+import { getApiUrl } from '../config/api';
+
 // Production API - Real backend integrations
 
 export interface BookingPayload {
@@ -25,7 +27,7 @@ export interface ApiResponse<T> {
 
 export const bookJob = async (payload: BookingPayload): Promise<ApiResponse<any>> => {
   const token = localStorage.getItem('access_token');
-  const response = await fetch('/api/jobs', {
+  const response = await fetch(getApiUrl('/api/jobs'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ export const bookJob = async (payload: BookingPayload): Promise<ApiResponse<any>
 
 export const createJobDraft = async (payload: any): Promise<ApiResponse<any>> => {
   const token = localStorage.getItem('access_token');
-  const response = await fetch('/api/jobs/draft', {
+  const response = await fetch(getApiUrl('/api/jobs/draft'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -78,7 +80,7 @@ export const getJobHistory = async (): Promise<ApiResponse<any[]>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('/api/client/history', {
+  const response = await fetch(getApiUrl('/api/client/history'), {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -111,7 +113,7 @@ export const getJobTrackingById = async (jobId: string): Promise<ApiResponse<any
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`/api/client/tracking/${jobId}`, {
+  const response = await fetch(getApiUrl(`/api/client/tracking/${jobId}`), {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -133,7 +135,7 @@ export const getJobTracking = async (): Promise<ApiResponse<any[]>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('/api/client/tracking', {
+  const response = await fetch(getApiUrl('/api/client/tracking'), {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -163,7 +165,7 @@ export const getClientInvoices = async (): Promise<ApiResponse<any>> => {
     throw new Error('Authentication required');
   }
   
-  const response = await fetch('/api/client/invoices', {
+  const response = await fetch(getApiUrl('/api/client/invoices'), {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -192,7 +194,7 @@ export const downloadClientInvoice = async (invoiceId: string): Promise<ApiRespo
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`/api/client/invoices/${invoiceId}/download`, {
+  const response = await fetch(getApiUrl(`/api/client/invoices/${invoiceId}/download`), {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -245,7 +247,7 @@ export const approveClientQuote = async (quoteId: string): Promise<ApiResponse<a
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`/api/client/quotes/${quoteId}/approve`, {
+  const response = await fetch(getApiUrl(`/api/client/quotes/${quoteId}/approve`), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -268,7 +270,7 @@ export const rejectClientQuote = async (quoteId: string, reason: string): Promis
     throw new Error('Authentication required');
   }
   
-  const response = await fetch(`/api/client/quotes/${quoteId}/decline`, {
+  const response = await fetch(getApiUrl(`/api/client/quotes/${quoteId}/decline`), {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -365,7 +367,7 @@ export interface Quote {
 // NEW: Get all quotes API
 export const getAllQuotes = async (): Promise<ApiResponse<Quote[]>> => {
   try {
-    const response = await fetch('/api/client/quotes', {
+    const response = await fetch(getApiUrl('/api/client/quotes'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

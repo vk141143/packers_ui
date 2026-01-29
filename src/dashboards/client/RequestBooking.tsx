@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Package, Send, ArrowLeft, X, Clock, Home, Trash2, AlertTriangle, FileText, Zap, Timer, Building } from 'lucide-react';
+import { MapPin, Calendar, Package, Send, ArrowLeft, X, Clock, Home, Trash2, AlertTriangle, FileText, Zap, Timer, Building, Camera } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { jobStore } from '../../store/jobStore';
 import { EnhancedPhotoUploadModal } from '../../components/common/EnhancedPhotoUploadModal';
@@ -107,27 +107,6 @@ export const RequestBooking: React.FC = () => {
         className="max-w-2xl mx-auto"
       >
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Show pending booking notification */}
-          {pendingBookingData && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                  <Package className="w-3 h-3 text-white" />
-                </div>
-                <p className="font-semibold text-green-800">Booking Data Loaded</p>
-              </div>
-              <p className="text-sm text-green-700">
-                Your booking details from the previous session have been loaded. 
-                {pendingBookingData.jobId && (
-                  <span className="font-medium"> Job ID: {pendingBookingData.jobId}</span>
-                )}
-              </p>
-            </motion.div>
-          )}
           {/* Header with gradient background */}
           <div className="mb-8 -m-8 p-8 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-t-2xl">
             <div className="flex items-center gap-4 mb-6">
