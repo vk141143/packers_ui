@@ -1,4 +1,4 @@
-// Mock API - No external integrations
+// Production API - Real backend integrations
 
 export interface BookingPayload {
   service_type: string;
@@ -24,11 +24,43 @@ export interface ApiResponse<T> {
 }
 
 export const bookJob = async (payload: BookingPayload): Promise<ApiResponse<any>> => {
-  return { success: true, data: { id: Date.now().toString(), ...payload } };
+  const token = localStorage.getItem('access_token');
+  const response = await fetch('/api/jobs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Job booking failed' }));
+    throw new Error(error.message || 'Job booking failed');
+  }
+  
+  const data = await response.json();
+  return { success: true, data };
 };
 
 export const createJobDraft = async (payload: any): Promise<ApiResponse<any>> => {
-  return { success: true, data: { id: Date.now().toString(), ...payload } };
+  const token = localStorage.getItem('access_token');
+  const response = await fetch('/api/jobs/draft', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Draft creation failed' }));
+    throw new Error(error.message || 'Draft creation failed');
+  }
+  
+  const data = await response.json();
+  return { success: true, data };
 };
 
 export const getJobDraft = async (jobId: string): Promise<ApiResponse<any>> => {
@@ -300,7 +332,7 @@ export const getAdminActiveJobs = async (): Promise<ApiResponse<any[]>> => {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('https://hammerhead-app-du23o.ondigitalocean.app/api/admin/dashboard/active-jobs', {
+  const response = await fetch('https://voidworksgroup.co.uk/api/admin/dashboard/active-jobs', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

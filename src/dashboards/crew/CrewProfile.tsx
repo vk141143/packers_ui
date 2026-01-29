@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Building, Edit2, Save, X, Shield, Calendar, Briefcase, Award, CheckCircle, Star, Trophy, Target, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCrewProfile, updateCrewProfile } from '../../services/crewService';
+import { getCrewProfile, updateCrewProfile } from '../../services/authService';
 
 export const CrewProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);

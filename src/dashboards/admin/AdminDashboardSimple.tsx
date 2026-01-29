@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jobStore } from '../../store/jobStore';
-import { userStore } from '../../store/userStore';
 import { Job } from '../../types';
 import { Users, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { getPendingCrew } from '../../services/authService';
+import { getAdminActiveJobs } from '../../services/api';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState<Job[]>(jobStore.getJobs());
-  const [pendingUsers, setPendingUsers] = useState(userStore.getPendingUsers().filter(u => u.status === 'pending'));
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = jobStore.subscribe(() => setJobs(jobStore.getJobs()));
-    const interval = setInterval(() => {
-      setPendingUsers(userStore.getPendingUsers().filter(u => u.status === 'pending'));
-    }, 5000);
-    return () => {
-      unsubscribe();
-      clearInterval(interval);
-    };
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const [jobsData, usersData] = await Promise.all([
+        getAdminActiveJobs().then(res => res.data || []),
+        getPendingCrew().catch(() => [])
+      ]);
+      setJobs(jobsData);
+      setPendingUsers(usersData);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
     { 
@@ -30,74 +39,45 @@ export const AdminDashboard: React.FC = () => {
       path: '/admin/users'
     },
     { 
-      label: 'Operations Review', 
-      count: jobs.filter(j => j.status === 'client-booking-request').length, 
-      icon: AlertCircle, 
-      color: 'bg-purple-500',
-      path: '/admin/operations'
-    },
-    { 
       label: 'Quote Management', 
-      count: jobs.filter(j => j.status === 'client-booking-request' || j.status === 'admin-quoted').length, 
+      count: jobs.filter(j => j.status === 'Quote Sent' || j.status === 'Needs Quote').length, 
       icon: FileText, 
       color: 'bg-blue-500',
       path: '/admin/quotes'
     },
     { 
-      label: 'Job Verification', 
-      count: jobs.filter(j => j.status === 'work-completed').length, 
-      icon: CheckCircle, 
+      label: 'Crew Assignment', 
+      count: jobs.filter(j => j.status === 'Quote Accepted' && j.crew === 'Not assigned').length, 
+      icon: Users, 
       color: 'bg-green-500',
+      path: '/admin/assign-crew'
+    },
+    { 
+      label: 'Job Verification', 
+      count: jobs.filter(j => j.status === 'payment_pending').length, 
+      icon: CheckCircle, 
+      color: 'bg-purple-500',
       path: '/admin/verification'
     },
   ];
 
-  const activeJobs = jobs.filter(j => j.status !== 'completed' && j.status !== 'cancelled');
+  const activeJobs = jobs;
 
-  const getJobStatus = (job: Job) => {
-    if (job.status === 'work-completed') return { text: 'Work Done - Set Price', color: 'bg-blue-100 text-blue-700' };
-    if (job.status === 'crew-dispatched') return { text: 'Crew En Route', color: 'bg-purple-100 text-purple-700' };
-    if (job.status === 'in-progress') return { text: 'Crew Working', color: 'bg-orange-100 text-orange-700' };
-    if (job.status === 'client-booking-request') return { text: 'Needs Quote', color: 'bg-red-100 text-red-700' };
-    if (job.status === 'admin-quoted') return { text: 'Quote Sent', color: 'bg-yellow-100 text-yellow-700' };
-    if (job.status === 'booking-confirmed' && !job.crewAssigned) return { text: 'Needs Crew', color: 'bg-green-100 text-green-700' };
-    if (job.crewAssigned) return { text: 'Crew Assigned', color: 'bg-purple-100 text-purple-700' };
-    return { text: 'New Job', color: 'bg-gray-100 text-gray-700' };
+  const getJobStatus = (job: any) => {
+    return { text: job.status, color: 'bg-blue-100 text-blue-700' };
   };
 
-  const getAction = (job: Job) => {
-    if (job.status === 'work-completed') {
-      return (
-        <button
-          onClick={() => navigate('/admin/verification', { state: { job } })}
-          className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-        >
-          Set Final Price
-        </button>
-      );
-    }
-    if (job.status === 'client-booking-request') {
-      return (
-        <button
-          onClick={() => navigate('/admin/quotes', { state: { job } })}
-          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-        >
-          Create Quote
-        </button>
-      );
-    }
-    if (job.status === 'booking-confirmed' && !job.crewAssigned) {
-      return (
-        <button
-          onClick={() => navigate('/admin/assign-crew', { state: { job } })}
-          className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
-        >
-          Assign Crew
-        </button>
-      );
-    }
-    return <span className="text-sm text-gray-500">No action needed</span>;
+  const getAction = (job: any) => {
+    return <span className="text-sm text-gray-600">{job.action}</span>;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -166,13 +146,11 @@ export const AdminDashboard: React.FC = () => {
               {activeJobs.map((job) => {
                 const status = getJobStatus(job);
                 return (
-                  <tr key={job.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{job.id}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{job.clientName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{job.pickupAddress}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {job.crewAssigned ? job.crewAssigned.join(', ') : 'Not assigned'}
-                    </td>
+                  <tr key={job.job_id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{job.job_id}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{job.client}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{job.property}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{job.crew}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${status.color}`}>
                         {status.text}

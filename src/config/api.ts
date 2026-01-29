@@ -1,16 +1,18 @@
+import { environment } from './environment';
+
 const isDev = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
 
 export const API_CONFIG = {
-  CLIENT_API: '/api',
-  CREW_API: '/auth',
-  ADMIN_API: '/admin',
+  CLIENT_API: environment.getApiUrl(),
+  CREW_API: environment.getApiUrl(),
+  ADMIN_API: environment.getApiUrl(),
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 };
 
 export const getApiUrl = (endpoint: string, apiType: 'client' | 'crew' | 'admin' = 'client'): string => {
-  const baseUrl = apiType === 'admin' ? API_CONFIG.ADMIN_API : (apiType === 'client' ? API_CONFIG.CLIENT_API : API_CONFIG.CREW_API);
+  const baseUrl = environment.getApiUrl('', apiType === 'admin' ? 'crew' : apiType);
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${baseUrl}${cleanEndpoint}`;
 };

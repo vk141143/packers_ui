@@ -1,6 +1,7 @@
 interface EnvironmentConfig {
   NODE_ENV: 'development' | 'production' | 'staging';
-  API_BASE_URL: string;
+  CLIENT_API_BASE_URL: string;
+  CREW_API_BASE_URL: string;
   WS_URL: string;
   ENCRYPTION_KEY: string;
   DATA_KEY: string;
@@ -95,8 +96,9 @@ class EnvironmentManager {
     
     return {
       NODE_ENV: env as 'development' | 'production' | 'staging',
-      API_BASE_URL: this.getApiUrl(env),
-      WS_URL: this.getWebSocketUrl(env),
+      CLIENT_API_BASE_URL: this.getClientApiUrlForEnv(env),
+      CREW_API_BASE_URL: this.getCrewApiUrlForEnv(env),
+      WS_URL: this.getWebSocketUrlForEnv(env),
       ENCRYPTION_KEY: import.meta.env.VITE_ENCRYPTION_KEY || this.generateFallbackKey(),
       DATA_KEY: import.meta.env.VITE_DATA_KEY || this.generateFallbackKey(),
       SALT: import.meta.env.VITE_SALT || 'default-salt-change-in-production',
@@ -113,10 +115,10 @@ class EnvironmentManager {
     };
   }
 
-  private getApiUrl(env: string): string {
+  private getClientApiUrlForEnv(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_API_URL_PROD || 'https://api.packersandmovers.com';
+        return import.meta.env.VITE_API_URL_PROD || 'https://client.voidworksgroup.co.uk';
       case 'staging':
         return import.meta.env.VITE_API_URL_STAGING || 'https://staging-api.packersandmovers.com';
       default:
@@ -124,14 +126,26 @@ class EnvironmentManager {
     }
   }
 
-  private getWebSocketUrl(env: string): string {
+  private getCrewApiUrlForEnv(env: string): string {
     switch (env) {
       case 'production':
-        return import.meta.env.VITE_WS_URL_PROD || 'wss://ws.packersandmovers.com';
+        return import.meta.env.VITE_CREW_API_URL_PROD || 'https://voidworksgroup.co.uk';
       case 'staging':
-        return import.meta.env.VITE_WS_URL_STAGING || 'wss://staging-ws.packersandmovers.com';
+        return import.meta.env.VITE_CREW_API_URL_STAGING || 'https://staging-crew.packersandmovers.com';
       default:
-        return import.meta.env.VITE_WS_URL_DEV || 'ws://localhost:3002';
+        return import.meta.env.VITE_CREW_API_URL_DEV || 'http://localhost:3001';
+    }
+  }
+
+  private getWebSocketUrlForEnv(env: string): string {
+    const metaEnv = import.meta.env || {};
+    switch (env) {
+      case 'production':
+        return metaEnv.VITE_WS_URL_PROD || 'wss://ws.packersandmovers.com';
+      case 'staging':
+        return metaEnv.VITE_WS_URL_STAGING || 'wss://staging-ws.packersandmovers.com';
+      default:
+        return metaEnv.VITE_WS_URL_DEV || 'ws://localhost:3002';
     }
   }
 
@@ -280,8 +294,9 @@ class EnvironmentManager {
     return this.config.FEATURE_FLAGS[feature];
   }
 
-  getApiUrl(endpoint: string = ''): string {
-    return `${this.config.API_BASE_URL}${endpoint}`;
+  getApiUrl(endpoint: string = '', apiType: 'client' | 'crew' = 'client'): string {
+    const baseUrl = apiType === 'client' ? this.config.CLIENT_API_BASE_URL : this.config.CREW_API_BASE_URL;
+    return `${baseUrl}${endpoint}`;
   }
 
   getWebSocketUrl(): string {
@@ -305,15 +320,37 @@ class EnvironmentManager {
   }
 
   getMonitoringConfig(): MonitoringConfig {
-    return { ...this.config.MONITORING };
+    return this.config ? { ...this.config.MONITORING } : {
+      ERROR_REPORTING: false,
+      PERFORMANCE_MONITORING: false,
+      USER_ANALYTICS: false,
+      API_MONITORING: false,
+      LOG_LEVEL: 'error'
+    };
   }
 
   getLoggingConfig(): LoggingConfig {
-    return { ...this.config.LOGGING };
+    return this.config ? { ...this.config.LOGGING } : {
+      enabled: false,
+      endpoint: '',
+      apiKey: '',
+      batchSize: 10,
+      flushInterval: 30000,
+      retryAttempts: 3,
+      enableConsoleOverride: false
+    };
   }
 
   getErrorReportingConfig(): ErrorReportingConfig {
-    return { ...this.config.ERROR_REPORTING };
+    return this.config ? { ...this.config.ERROR_REPORTING } : {
+      enabled: false,
+      endpoint: '',
+      apiKey: '',
+      includeStackTrace: false,
+      includeUserContext: false,
+      enableSourceMaps: false,
+      filterSensitiveData: true
+    };
   }
 }
 

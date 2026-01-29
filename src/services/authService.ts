@@ -4,7 +4,7 @@ import { fetchWithTimeout, isTokenExpired } from '../utils/requestUtils';
 const isDev = import.meta.env.DEV;
 
 export async function registerClient(payload: any): Promise<any> {
-  const response = await fetchWithTimeout(getApiUrl('/auth/register/client'), {
+  const response = await fetchWithTimeout(getApiUrl('/api/auth/register/client', 'client'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ export async function refreshToken() {
     throw new Error('No refresh token available');
   }
   
-  const response = await fetch(getApiUrl('/auth/refresh'), {
+  const response = await fetch(getApiUrl('/api/auth/refresh', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -487,7 +487,7 @@ export async function getClientProfile() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch('/api/auth/client/profile', {
+  const response = await fetch(getApiUrl('/api/auth/client/profile', 'client'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -517,7 +517,7 @@ export async function getCrewProfile() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/auth/crew/profile', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/crew/profile', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -540,7 +540,7 @@ export async function getAdminProfile() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/auth/admin/profile', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/admin/profile', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -572,7 +572,7 @@ export async function updateClientProfile(data: any) {
     business_address: data.business_address
   };
   
-  const response = await fetch('/api/auth/client/profile', {
+  const response = await fetch(getApiUrl('/api/auth/client/profile', 'client'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -899,7 +899,7 @@ export async function updateCrewProfile(data: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/auth/crew/profile', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/crew/profile', 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -923,7 +923,7 @@ export async function updateAdminProfile(data: any) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/auth/admin/profile', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/admin/profile', 'crew'), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -953,14 +953,15 @@ export async function registerCrew(payload: any): Promise<any> {
   if (payload.insurance) formData.append('insurance_certificate', payload.insurance);
   if (payload.rightToWork) formData.append('right_to_work', payload.rightToWork);
 
-  const response = await fetch(getApiUrl('/auth/register/crew', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/register/crew', 'crew'), {
     method: 'POST',
     body: formData,
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Registration failed' }));
-    throw new Error(error.message || 'Crew registration failed');
+    console.error('Crew registration error:', error);
+    throw new Error(error.detail || error.message || 'Crew registration failed');
   }
 
   return await response.json();
@@ -980,9 +981,9 @@ export async function loginCrew(email: string, password: string) {
   };
   
   const endpoints = [
+    getApiUrl('/api/auth/login/crew', 'crew'),
     getApiUrl('/auth/login/crew', 'crew'),
-    getApiUrl('/login/crew', 'crew'),
-    getApiUrl('/api/auth/login/crew', 'crew')
+    getApiUrl('/login/crew', 'crew')
   ];
   
   let response: Response | null = null;
@@ -1034,7 +1035,7 @@ export async function loginSales(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/sales', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/login/sales', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1067,7 +1068,7 @@ export async function loginManagement(email: string, password: string) {
     throw new Error('Email and password are required');
   }
   
-  const response = await fetch(getApiUrl('/auth/login/management', 'crew'), {
+  const response = await fetch(getApiUrl('/api/auth/login/management', 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1110,9 +1111,9 @@ export async function loginAdmin(email: string, password: string) {
   
   // Try different endpoint patterns for production
   const endpoints = [
+    getApiUrl('/api/auth/login/admin', 'crew'),
     getApiUrl('/auth/login/admin', 'crew'),
-    getApiUrl('/login/admin', 'crew'),
-    getApiUrl('/api/auth/login/admin', 'crew')
+    getApiUrl('/login/admin', 'crew')
   ];
   
   let response: Response | null = null;
@@ -1167,17 +1168,36 @@ export async function getPendingCrew() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/crew/pending', 'crew'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch pending crew' }));
-    throw new Error(error.message || 'Pending crew fetch failed');
+  const endpoints = [
+    getApiUrl('/api/admin/crew/pending', 'crew'),
+    getApiUrl('/admin/crew/pending', 'crew'),
+    getApiUrl('/crew/pending', 'crew'),
+    getApiUrl('/api/admin/crew/pending', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      lastError = error as Error;
+      continue;
+    }
+  }
+  
+  if (!response || !response.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to fetch pending crew' }));
+    throw new Error(error?.message || lastError?.message || 'Pending crew fetch failed');
   }
 
   return await response.json();
@@ -1190,7 +1210,7 @@ export async function getPendingCrewById(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/crew/pending/${crewId}`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/crew/pending/${crewId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1213,17 +1233,34 @@ export async function approveCrewMember(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/crew/${crewId}/approve`, 'crew'), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    { url: getApiUrl(`/api/admin/crew/${crewId}/approve`, 'crew'), method: 'PATCH' },
+    { url: getApiUrl(`/api/admin/crew/${crewId}/approve`, 'crew'), method: 'PUT' },
+    { url: getApiUrl(`/api/admin/crew/${crewId}/approve`, 'crew'), method: 'POST' },
+    { url: getApiUrl(`/admin/crew/${crewId}/approve`, 'crew'), method: 'POST' }
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint.url, {
+        method: endpoint.method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404 && response.status !== 405) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to approve crew member' }));
-    throw new Error(error.message || 'Crew approval failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to approve crew member' }));
+    throw new Error(error?.message || 'Crew approval failed');
   }
 
   return await response.json();
@@ -1236,17 +1273,32 @@ export async function rejectCrewMember(crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/crew/${crewId}/reject`, 'crew'), {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    getApiUrl(`/api/admin/crew/${crewId}/reject`, 'crew'),
+    getApiUrl(`/admin/crew/${crewId}/reject`, 'crew')
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to reject crew member' }));
-    throw new Error(error.message || 'Crew rejection failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to reject crew member' }));
+    throw new Error(error?.message || 'Crew rejection failed');
   }
 
   return await response.json();
@@ -1259,17 +1311,33 @@ export async function getAdminQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/quotes', 'crew'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    getApiUrl('/admin/quotes', 'crew'),
+    getApiUrl('/quotes', 'crew'),
+    getApiUrl('/api/admin/quotes', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch quotes' }));
-    throw new Error(error.message || 'Admin quotes fetch failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to fetch quotes' }));
+    throw new Error(error?.message || 'Admin quotes fetch failed');
   }
 
   return await response.json();
@@ -1282,17 +1350,33 @@ export async function getSentQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/quotes/sent', 'crew'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    getApiUrl('/admin/quotes/sent', 'crew'),
+    getApiUrl('/quotes/sent', 'crew'),
+    getApiUrl('/api/admin/quotes/sent', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch sent quotes' }));
-    throw new Error(error.message || 'Sent quotes fetch failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to fetch sent quotes' }));
+    throw new Error(error?.message || 'Sent quotes fetch failed');
   }
 
   return await response.json();
@@ -1305,17 +1389,33 @@ export async function getAcceptedQuotes() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/quotes/accepted', 'crew'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    getApiUrl('/admin/quotes/accepted', 'crew'),
+    getApiUrl('/quotes/accepted', 'crew'),
+    getApiUrl('/api/admin/quotes/accepted', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch accepted quotes' }));
-    throw new Error(error.message || 'Accepted quotes fetch failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to fetch accepted quotes' }));
+    throw new Error(error?.message || 'Accepted quotes fetch failed');
   }
 
   const data = await response.json();
@@ -1350,7 +1450,7 @@ export async function getAvailableCrew() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/crew/available', 'crew'), {
+  const response = await fetch(getApiUrl('/api/admin/crew/available', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1373,7 +1473,7 @@ export async function assignCrewToJob(jobId: string, crewId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/jobs/${jobId}/assign-crew/${crewId}`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/jobs/${jobId}/assign-crew/${crewId}`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1396,7 +1496,7 @@ export async function getUnassignedJobById(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/jobs/unassigned/${jobId}`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/jobs/unassigned/${jobId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1419,7 +1519,7 @@ export async function getUnassignedJobs() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/jobs/unassigned', 'crew'), {
+  const response = await fetch(getApiUrl('/api/admin/jobs/unassigned', 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1481,17 +1581,32 @@ export async function getJobsPendingVerification() {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl('/admin/verification/jobs', 'crew'), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+  const endpoints = [
+    getApiUrl('/api/admin/verification/jobs', 'crew'),
+    getApiUrl('/admin/verification/jobs', 'crew')
+  ];
+  
+  let response: Response | null = null;
+  
+  for (const endpoint of endpoints) {
+    try {
+      response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) break;
+      if (response.status !== 404) break;
+    } catch (error) {
+      continue;
+    }
+  }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to fetch jobs pending verification' }));
-    throw new Error(error.message || 'Jobs pending verification fetch failed');
+  if (!response?.ok) {
+    const error = await response?.json().catch(() => ({ message: 'Failed to fetch jobs pending verification' }));
+    throw new Error(error?.message || 'Jobs pending verification fetch failed');
   }
 
   return await response.json();
@@ -1504,7 +1619,7 @@ export async function getJobVerificationDetails(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/verification/jobs/${jobId}`, 'crew'), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -1527,7 +1642,7 @@ export async function approveJobVerification(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/approve`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/verification/jobs/${jobId}/approve`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1550,7 +1665,7 @@ export async function rejectJobVerification(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/reject`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/verification/jobs/${jobId}/reject`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1573,7 +1688,7 @@ export async function sendPaymentRequest(jobId: string) {
     throw new Error('No access token available');
   }
   
-  const response = await fetch(getApiUrl(`/admin/verification/jobs/${jobId}/send-payment-request`, 'crew'), {
+  const response = await fetch(getApiUrl(`/api/admin/verification/jobs/${jobId}/send-payment-request`, 'crew'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

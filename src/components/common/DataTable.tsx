@@ -36,7 +36,7 @@ const TableRow = React.memo(<T extends { id: string }>({
   </tr>
 ));
 
-export function DataTable<T extends { id: string }>({ 
+export function DataTable<T extends Record<string, any>>({ 
   data, 
   columns, 
   onRowClick, 
@@ -54,7 +54,7 @@ export function DataTable<T extends { id: string }>({
           <tr>
             {columns.map((column, idx) => (
               <th
-                key={idx}
+                key={`header-${idx}`}
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {column.header}
@@ -63,13 +63,20 @@ export function DataTable<T extends { id: string }>({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {paginatedData.map((row) => (
-            <TableRow
-              key={row.id}
-              row={row}
-              columns={columns}
-              onRowClick={onRowClick}
-            />
+          {paginatedData.map((row, rowIdx) => (
+            <tr
+              key={row.id || row.job_id || `row-${rowIdx}`}
+              onClick={() => onRowClick?.(row)}
+              className={onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
+            >
+              {columns.map((column, colIdx) => (
+                <td key={`cell-${rowIdx}-${colIdx}`} className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || ''}`}>
+                  {typeof column.accessor === 'function'
+                    ? column.accessor(row)
+                    : String(row[column.accessor])}
+                </td>
+              ))}
+            </tr>
           ))}
         </tbody>
       </table>
