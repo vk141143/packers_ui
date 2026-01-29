@@ -92,20 +92,20 @@ class EnvironmentManager {
   }
 
   private loadConfiguration(): EnvironmentConfig {
-    const env = import.meta.env.MODE || 'development';
+    const env = import.meta.env?.MODE || 'development';
     
     return {
       NODE_ENV: env as 'development' | 'production' | 'staging',
       CLIENT_API_BASE_URL: this.getClientApiUrlForEnv(env),
       CREW_API_BASE_URL: this.getCrewApiUrlForEnv(env),
       WS_URL: this.getWebSocketUrlForEnv(env),
-      ENCRYPTION_KEY: import.meta.env.VITE_ENCRYPTION_KEY || this.generateFallbackKey(),
-      DATA_KEY: import.meta.env.VITE_DATA_KEY || this.generateFallbackKey(),
-      SALT: import.meta.env.VITE_SALT || 'default-salt-change-in-production',
-      MAPBOX_TOKEN: import.meta.env.VITE_MAPBOX_TOKEN || '',
-      STRIPE_PUBLIC_KEY: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
-      SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN || '',
-      ANALYTICS_ID: import.meta.env.VITE_ANALYTICS_ID || '',
+      ENCRYPTION_KEY: import.meta.env?.VITE_ENCRYPTION_KEY || this.generateFallbackKey(),
+      DATA_KEY: import.meta.env?.VITE_DATA_KEY || this.generateFallbackKey(),
+      SALT: import.meta.env?.VITE_SALT || 'default-salt-change-in-production',
+      MAPBOX_TOKEN: import.meta.env?.VITE_MAPBOX_TOKEN || '',
+      STRIPE_PUBLIC_KEY: import.meta.env?.VITE_STRIPE_PUBLIC_KEY || '',
+      SENTRY_DSN: import.meta.env?.VITE_SENTRY_DSN || '',
+      ANALYTICS_ID: import.meta.env?.VITE_ANALYTICS_ID || '',
       FEATURE_FLAGS: this.getFeatureFlags(env),
       SECURITY: this.getSecuritySettings(env),
       RATE_LIMITS: this.getRateLimits(env),
@@ -198,7 +198,7 @@ class EnvironmentManager {
       PERFORMANCE_MONITORING: this.getBooleanEnv('VITE_PERFORMANCE_MONITORING', isProd),
       USER_ANALYTICS: this.getBooleanEnv('VITE_USER_ANALYTICS', isProd),
       API_MONITORING: this.getBooleanEnv('VITE_API_MONITORING', true),
-      LOG_LEVEL: (import.meta.env.VITE_LOG_LEVEL as any) || (isProd ? 'error' : 'debug')
+      LOG_LEVEL: (import.meta.env?.VITE_LOG_LEVEL as any) || (isProd ? 'error' : 'debug')
     };
   }
 
@@ -253,7 +253,7 @@ class EnvironmentManager {
   }
 
   private getBooleanEnv(key: string, defaultValue: boolean): boolean {
-    const value = import.meta.env[key];
+    const value = import.meta.env?.[key];
     if (value === undefined) return defaultValue;
     return value === 'true' || value === '1';
   }
@@ -316,17 +316,7 @@ class EnvironmentManager {
     return { ...this.config.RATE_LIMITS };
   }
 
-  getMonitoringConfig(): MonitoringConfig {
-    return { ...this.config.MONITORING };
-  }
 
-  getLoggingConfig(): LoggingConfig {
-    return { ...this.config.LOGGING };
-  }
-
-  getErrorReportingConfig(): ErrorReportingConfig {
-    return { ...this.config.ERROR_REPORTING };
-  }
 }
 
 // Export singleton instance
